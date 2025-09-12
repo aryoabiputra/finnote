@@ -433,48 +433,57 @@ main {
 }
 
 /* Bar chart: side-by-side per bulan */
-.bars {
-    display: grid;
-    align-items: end;
-    gap: 14px;
-    grid-template-columns: repeat(6, 1fr);
-    height: 200px;
-    padding: 6px 4px 0;
-    border-left: 1px dashed rgba(255, 255, 255, .1);
-    border-bottom: 1px dashed rgba(255, 255, 255, .1)
+/* Area grid 6 bulan */
+.bars{
+  display:grid;
+  align-items:end;
+  gap:14px;
+  grid-template-columns:repeat(6,1fr);
+  height:200px;
+  padding:6px 4px 0;
+  border-left:1px dashed rgba(255,255,255,.1);
+  border-bottom:1px dashed rgba(255,255,255,.1);
 }
 
-.bar {
-    display: grid;
-    grid-template-columns: 16px 16px;
-    grid-template-rows: 1fr auto;
-    gap: 6px 8px;
-    justify-content: center;
-    align-items: end;
+/* Satu “bulan” = area vertikal + label */
+.bar{
+  display:grid;
+  grid-template-rows: 1fr auto; /* area batang | label */
+  justify-items:center;
+  align-items:end;
+  gap:6px;
 }
 
-.bar .col {
-    width: 16px;
-    border-radius: 6px 6px 0 0;
-    grid-row: 1;
-    background: linear-gradient(180deg, #38bdf8, #2563eb);
-    /* Out (biru) */
-    box-shadow: 0 6px 16px rgba(37, 99, 235, .35) inset;
+/* Wrapper 2 batang (biar berdampingan rapi) */
+.bar .cols{
+  display:flex;
+  gap:8px;              /* jarak antara in vs out */
+  align-items:flex-end; /* nempel ke bawah */
 }
 
-.bar .col.alt {
-    background: linear-gradient(180deg, #34d399, #059669);
-    /* In (hijau) */
-    box-shadow: 0 6px 16px rgba(5, 150, 105, .35) inset;
+/* Batang dasar */
+.bar .col{
+  width:16px;
+  border-radius:6px 6px 0 0;
+  transition:height .2s ease, opacity .2s ease;
 }
 
-.bar label {
-    grid-row: 2;
-    grid-column: 1 / span 2;
-    text-align: center;
-    font-size: 11px;
-    color: var(--muted)
+/* Warna: hijau = pemasukan, merah = pengeluaran */
+.bar .col.in{
+  background:linear-gradient(180deg,#34d399,#059669);
+  box-shadow:0 6px 16px rgba(5,150,105,.35) inset;
 }
+.bar .col.out{
+  background:linear-gradient(180deg,#ef4444,#b91c1c);
+  box-shadow:0 6px 16px rgba(239,68,68,.35) inset;
+}
+
+/* Label di bawah */
+.bar label{
+  font-size:11px;
+  color:var(--muted);
+}
+
 
 .sect-title {
     font-weight: 700;
