@@ -16,7 +16,7 @@ let wallets = load(LS_WALLETS, [
   { id: uuid(), name: 'Tabungan', note: 'Cadangan', balance: 2200000, theme: 'amber', icon: 'fa-piggy-bank' }
 ]);
 let cats = load(LS_CATS, { income: [], expense: [] });
-let txs  = load(LS_TX, []);
+let txs = load(LS_TX, []);
 
 let txType = 'out', txMode = 'create', editingTxId = null;
 let statsWalletId = 'all', statsDonutType = 'expense';
@@ -62,7 +62,7 @@ function renderWallets() {
 }
 function recentTxItemHTML(t) {
   const sign = t.type === 'in' ? '+' : '-';
-  const cls  = t.type === 'in' ? 'plus' : 'minus';
+  const cls = t.type === 'in' ? 'plus' : 'minus';
   const w = wallets.find(x => x.id === t.walletId);
   const walletName = w ? w.name : '—';
   const cat = t.category || 'Tanpa Kategori';
@@ -90,7 +90,7 @@ function renderRecentTx() {
 function renderAll() { renderSummary(); renderWallets(); renderRecentTx(); renderStats(); }
 
 /* ===== Wallet CRUD ===== */
-function openModal(s) { $(s).classList.add('show'); } 
+function openModal(s) { $(s).classList.add('show'); }
 function closeModal(s) { $(s).classList.remove('show'); }
 function doAddWallet() {
   const name = $('#inWName').value.trim(), note = $('#inWNote').value.trim(), bal = Number($('#inWBalance').value || 0);
@@ -130,27 +130,27 @@ function deleteCategory(name) {
 
 /* ===== Transactions ===== */
 function setTxType(t) {
-  txType = t; 
-  $('#tagIn').style.outline  = t === 'in'  ? '2px solid rgba(34,197,94,.6)' : 'none';
+  txType = t;
+  $('#tagIn').style.outline = t === 'in' ? '2px solid rgba(34,197,94,.6)' : 'none';
   $('#tagOut').style.outline = t === 'out' ? '2px solid rgba(239,68,68,.6)' : 'none';
   fillTxCategory();
 }
 function fillTxWallet() {
-  const sel = $('#inWallet'); 
+  const sel = $('#inWallet');
   if (!wallets.length) { sel.innerHTML = `<option value="">(Belum ada wallet)</option>`; return; }
   sel.innerHTML = wallets.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
 }
 function fillTxCategory(selectedValue = null) {
-  const sel = $('#inCategory'); 
-  const type = (txType === 'in') ? 'income' : 'expense'; 
+  const sel = $('#inCategory');
+  const type = (txType === 'in') ? 'income' : 'expense';
   const list = cats[type] || [];
-  if (!list.length) { 
-    sel.innerHTML = `<option value="">(Belum ada kategori)</option>`; 
-    $('#catHint').style.display = 'block'; 
-  } else { 
-    sel.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join(''); 
-    $('#catHint').style.display = 'none'; 
-    if (selectedValue && list.includes(selectedValue)) sel.value = selectedValue; 
+  if (!list.length) {
+    sel.innerHTML = `<option value="">(Belum ada kategori)</option>`;
+    $('#catHint').style.display = 'block';
+  } else {
+    sel.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join('');
+    $('#catHint').style.display = 'none';
+    if (selectedValue && list.includes(selectedValue)) sel.value = selectedValue;
   }
 }
 function openTxModalCreate() {
@@ -165,40 +165,40 @@ function openTxModalEdit(txId) {
   fillTxCategory(t.category); $('#inNoteTx').value = t.note || ''; $('#inDate').value = t.date; $('#btnDeleteTx').style.display = 'inline-grid';
   openModal('#modalTx');
 }
-function reverseTxEffect(t) { 
-  const w = wallets.find(w => w.id === t.walletId); if (!w) return; 
-  w.balance = Number(w.balance || 0) + (t.type === 'in' ? -t.amount : +t.amount); 
+function reverseTxEffect(t) {
+  const w = wallets.find(w => w.id === t.walletId); if (!w) return;
+  w.balance = Number(w.balance || 0) + (t.type === 'in' ? -t.amount : +t.amount);
 }
-function applyTxEffect(t) { 
-  const w = wallets.find(w => w.id === t.walletId); if (!w) return; 
-  w.balance = Number(w.balance || 0) + (t.type === 'in' ? +t.amount : -t.amount); 
+function applyTxEffect(t) {
+  const w = wallets.find(w => w.id === t.walletId); if (!w) return;
+  w.balance = Number(w.balance || 0) + (t.type === 'in' ? +t.amount : -t.amount);
 }
 function applyEditWalletAdjustments(oldT, newT) { reverseTxEffect(oldT); applyTxEffect(newT); }
 function saveTxFromModal() {
   const amount = Number($('#inAmount').value || 0),
-        walletId = $('#inWallet').value,
-        category = $('#inCategory').value,
-        note = $('#inNoteTx').value.trim(),
-        date = $('#inDate').value || new Date().toISOString().slice(0, 10);
-  if (!amount || amount <= 0) { alert('Nominal harus > 0'); return; } 
+    walletId = $('#inWallet').value,
+    category = $('#inCategory').value,
+    note = $('#inNoteTx').value.trim(),
+    date = $('#inDate').value || new Date().toISOString().slice(0, 10);
+  if (!amount || amount <= 0) { alert('Nominal harus > 0'); return; }
   if (!walletId) { alert('Pilih dompet'); return; }
-  if (txMode === 'create') { 
-    const t = { id: uuid(), type: txType, amount, category, note, walletId, date }; 
-    txs.push(t); applyTxEffect(t); 
+  if (txMode === 'create') {
+    const t = { id: uuid(), type: txType, amount, category, note, walletId, date };
+    txs.push(t); applyTxEffect(t);
   } else {
     const idx = txs.findIndex(x => x.id === editingTxId); if (idx < 0) { closeModal('#modalTx'); return; }
-    const oldT = { ...txs[idx] }; 
-    const newT = { ...oldT, type: txType, amount, category, note, walletId, date }; 
-    applyEditWalletAdjustments(oldT, newT); 
+    const oldT = { ...txs[idx] };
+    const newT = { ...oldT, type: txType, amount, category, note, walletId, date };
+    applyEditWalletAdjustments(oldT, newT);
     txs[idx] = newT;
   }
   save(LS_TX, txs); save(LS_WALLETS, wallets); renderAll(); closeModal('#modalTx'); $('#tab-home').checked = true;
 }
 function doDeleteTx(txId, silentClose = false) {
-  const idx = txs.findIndex(t => t.id === txId); if (idx < 0) return; 
+  const idx = txs.findIndex(t => t.id === txId); if (idx < 0) return;
   const t = txs[idx];
   if (!confirm('Hapus transaksi ini?')) return;
-  reverseTxEffect(t); txs.splice(idx, 1); 
+  reverseTxEffect(t); txs.splice(idx, 1);
   save(LS_TX, txs); save(LS_WALLETS, wallets); renderAll();
   if (!silentClose) closeModal('#modalTx'); $('#tab-home').checked = true;
 }
@@ -222,7 +222,7 @@ function renderBars() {
   const list = getFilteredTx();
   const keys = lastSixMonthsKeys();
   const series = keys.map(k => {
-    const inSum  = list.filter(t => t.type === 'in'  && monthKey(t.date) === k).reduce((a, b) => a + b.amount, 0);
+    const inSum = list.filter(t => t.type === 'in' && monthKey(t.date) === k).reduce((a, b) => a + b.amount, 0);
     const outSum = list.filter(t => t.type === 'out' && monthKey(t.date) === k).reduce((a, b) => a + b.amount, 0);
     return { k, inSum, outSum };
   });
@@ -230,17 +230,20 @@ function renderBars() {
   const chartHeight = 170; const ghost = 6; const minNZ = 10;
 
   const barsHTML = series.map(s => {
-    const hInRaw  = (s.inSum  / maxVal) * chartHeight;
-    const hOutRaw = (s.outSum / maxVal) * chartHeight;
-    const hIn  = s.inSum  === 0 ? ghost : Math.max(minNZ, Math.round(hInRaw));
-    const hOut = s.outSum === 0 ? ghost : Math.max(minNZ, Math.round(hOutRaw));
-    return `<div class="bar" title="${monthLabel(s.k)} • In: ${fmtIDR(s.inSum)} | Out: ${fmtIDR(s.outSum)}">
-      <div class="col alt" style="height:${hIn}px;  opacity:${s.inSum  === 0 ? .35 : 1}"></div>
-      <div class="col"     style="height:${hOut}px; opacity:${s.outSum === 0 ? .35 : 1}"></div>
-      <label>${monthLabel(s.k)}</label>
-    </div>`;
-  }).join('');
-  $('#bars').innerHTML = barsHTML;
+  const hInRaw  = (s.inSum  / maxVal) * chartHeight;
+  const hOutRaw = (s.outSum / maxVal) * chartHeight;
+  const hIn  = s.inSum  === 0 ? ghost : Math.max(minNZ, Math.round(hInRaw));
+  const hOut = s.outSum === 0 ? ghost : Math.max(minNZ, Math.round(hOutRaw));
+  return `<div class="bar" title="${monthLabel(s.k)} • In: ${fmtIDR(s.inSum)} | Out: ${fmtIDR(s.outSum)}">
+    <div class="cols">
+      <div class="col in"  style="height:${hIn}px;  opacity:${s.inSum===0 ? .35 : 1}"></div>
+      <div class="col out" style="height:${hOut}px; opacity:${s.outSum===0 ? .35 : 1}"></div>
+    </div>
+    <label>${monthLabel(s.k)}</label>
+  </div>`;
+}).join('');
+$('#bars').innerHTML = barsHTML;
+
 }
 
 function renderDonut() {
@@ -282,7 +285,7 @@ function toISO(d) {
   return isNaN(dt) ? String(d) : dt.toISOString().slice(0, 10);
 }
 function monthNameID(mIdx) {
-  return ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][mIdx];
+  return ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'][mIdx];
 }
 /** filter tx utk bulan/tahun tertentu */
 function filterTxByMonthYear(all, year, monthIndex) {
@@ -324,9 +327,9 @@ function exportToExcel() {
   const monthTx = filterTxByMonthYear(txs, year, monthIndex);
 
   // Hitung ringkasan
-  const totalIn  = monthTx.filter(t => t.type === 'in' ).reduce((a,b) => a + (b.amount||0), 0);
-  const totalOut = monthTx.filter(t => t.type === 'out').reduce((a,b) => a + (b.amount||0), 0);
-  const saldo    = totalIn - totalOut;
+  const totalIn = monthTx.filter(t => t.type === 'in').reduce((a, b) => a + (b.amount || 0), 0);
+  const totalOut = monthTx.filter(t => t.type === 'out').reduce((a, b) => a + (b.amount || 0), 0);
+  const saldo = totalIn - totalOut;
 
   // Susun worksheet: judul + ringkasan + tabel
   const title = `Ringkasan transaksi bulan ${monthNameID(monthIndex)} tahun ${year}`;
@@ -339,7 +342,7 @@ function exportToExcel() {
     const signedAmount = t.type === 'in' ? +Number(t.amount || 0) : -Number(t.amount || 0);
     // Tanggal sebagai Date agar Excel mengenali tipe tanggal
     const dateObj = (() => { const d = new Date(t.date); return isNaN(d) ? t.date : d; })();
-    return [ typeLabel, signedAmount, (w ? w.name : '(tidak ditemukan)'), dateObj, t.note || '' ];
+    return [typeLabel, signedAmount, (w ? w.name : '(tidak ditemukan)'), dateObj, t.note || ''];
   });
 
   // Bangun sheet
@@ -422,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Close modals
   $$('[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close'))));
   ['#modalAddWallet', '#modalTx', '#modalCats'].forEach(sel => {
-    const el = $(sel); if (!el) return; 
+    const el = $(sel); if (!el) return;
     el.addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(sel); });
   });
 
@@ -441,12 +444,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Edit/Delete dari Riwayat
   $('#recentTx')?.addEventListener('click', e => {
-    const row = e.target.closest('.tx'); if (!row) return; 
+    const row = e.target.closest('.tx'); if (!row) return;
     const txId = row.getAttribute('data-txid');
-    const actEdit = e.target.closest('[data-action="edit"]'); 
-    const actDel  = e.target.closest('[data-action="del"]');
+    const actEdit = e.target.closest('[data-action="edit"]');
+    const actDel = e.target.closest('[data-action="del"]');
     if (actEdit && txId) openTxModalEdit(txId);
-    if (actDel  && txId) doDeleteTx(txId, true);
+    if (actDel && txId) doDeleteTx(txId, true);
   });
 
   // Categories
@@ -462,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statsDonutType = 'expense'; $('#btnDonutExpense').classList.add('active'); $('#btnDonutIncome').classList.remove('active'); renderDonut();
   });
   $('#btnDonutIncome')?.addEventListener('click', () => {
-    statsDonutType = 'income';  $('#btnDonutIncome').classList.add('active');  $('#btnDonutExpense').classList.remove('active'); renderDonut();
+    statsDonutType = 'income'; $('#btnDonutIncome').classList.add('active'); $('#btnDonutExpense').classList.remove('active'); renderDonut();
   });
 
   // Export Excel
