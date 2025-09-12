@@ -73,6 +73,8 @@
                     <div class="subtext" id="summaryText">Ringkasan dari 0 dompet aktif</div>
                 </div>
 
+
+
                 <div class="home-stack">
                     <!-- Saldo per Dompet -->
                     <div class="card pad">
@@ -80,6 +82,24 @@
                                 id="walletCountHint"></span></div>
                         <div id="homeWalletList"></div>
                     </div>
+
+                    <!-- Ringkasan Hutang -->
+                    <div class="card pad" id="debtCard">
+                        <div class="sect-title">
+                            <i class="fa-solid fa-hand-holding-dollar"></i> Total Hutang
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:end;gap:10px">
+                            <div>
+                                <div class="muted">Jumlah</div>
+                                <div id="debtTotal" style="font-size:18px;font-weight:800;margin-top:4px">Rp 0</div>
+                            </div>
+                            <div class="pill" id="debtCountPill">0 transaksi</div>
+                        </div>
+                        <div class="hint" style="margin-top:8px">
+                            Jangan lupa bayar hutang hey.
+                        </div>
+                    </div>
+
 
                     <!-- Riwayat Singkat -->
                     <div class="card pad">
@@ -201,7 +221,9 @@
                 <div style="display:grid; grid-auto-flow:column; gap:8px; justify-content:start">
                     <span id="tagIn" class="tagtype tag-in" data-type="in">Pemasukan</span>
                     <span id="tagOut" class="tagtype tag-out" data-type="out">Pengeluaran</span>
+                    <span id="tagDebt" class="tagtype tag-debt" data-type="debt">Hutang</span>
                 </div>
+
                 <input id="inAmount" class="input" type="number" inputmode="numeric"
                     placeholder="Nominal (contoh: 125000)" />
                 <select id="inWallet" class="select"></select>

@@ -434,54 +434,58 @@ main {
 
 /* Bar chart: side-by-side per bulan */
 /* Area grid 6 bulan */
-.bars{
-  display:grid;
-  align-items:end;
-  gap:14px;
-  grid-template-columns:repeat(6,1fr);
-  height:200px;
-  padding:6px 4px 0;
-  border-left:1px dashed rgba(255,255,255,.1);
-  border-bottom:1px dashed rgba(255,255,255,.1);
+.bars {
+    display: grid;
+    align-items: end;
+    gap: 14px;
+    grid-template-columns: repeat(6, 1fr);
+    height: 200px;
+    padding: 6px 4px 0;
+    border-left: 1px dashed rgba(255, 255, 255, .1);
+    border-bottom: 1px dashed rgba(255, 255, 255, .1);
 }
 
 /* Satu “bulan” = area vertikal + label */
-.bar{
-  display:grid;
-  grid-template-rows: 1fr auto; /* area batang | label */
-  justify-items:center;
-  align-items:end;
-  gap:6px;
+.bar {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    /* area batang | label */
+    justify-items: center;
+    align-items: end;
+    gap: 6px;
 }
 
 /* Wrapper 2 batang (biar berdampingan rapi) */
-.bar .cols{
-  display:flex;
-  gap:8px;              /* jarak antara in vs out */
-  align-items:flex-end; /* nempel ke bawah */
+.bar .cols {
+    display: flex;
+    gap: 8px;
+    /* jarak antara in vs out */
+    align-items: flex-end;
+    /* nempel ke bawah */
 }
 
 /* Batang dasar */
-.bar .col{
-  width:16px;
-  border-radius:6px 6px 0 0;
-  transition:height .2s ease, opacity .2s ease;
+.bar .col {
+    width: 16px;
+    border-radius: 6px 6px 0 0;
+    transition: height .2s ease, opacity .2s ease;
 }
 
 /* Warna: hijau = pemasukan, merah = pengeluaran */
-.bar .col.in{
-  background:linear-gradient(180deg,#34d399,#059669);
-  box-shadow:0 6px 16px rgba(5,150,105,.35) inset;
+.bar .col.in {
+    background: linear-gradient(180deg, #34d399, #059669);
+    box-shadow: 0 6px 16px rgba(5, 150, 105, .35) inset;
 }
-.bar .col.out{
-  background:linear-gradient(180deg,#ef4444,#b91c1c);
-  box-shadow:0 6px 16px rgba(239,68,68,.35) inset;
+
+.bar .col.out {
+    background: linear-gradient(180deg, #ef4444, #b91c1c);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, .35) inset;
 }
 
 /* Label di bawah */
-.bar label{
-  font-size:11px;
-  color:var(--muted);
+.bar label {
+    font-size: 11px;
+    color: var(--muted);
 }
 
 
@@ -710,4 +714,10 @@ main {
     .controls {
         grid-template-columns: 1fr
     }
+}
+
+.tag-debt {
+    background: rgba(245, 158, 11, .15);
+    /* amber */
+    color: #fde68a;
 }
