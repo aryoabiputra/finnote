@@ -1,1231 +1,55 @@
-<<<<<<< HEAD
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FinNote — DANA-like (HTML+CSS+JS)</title>
-
-  <!-- Font & Icon -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-  <style>
-    :root {
-      --brand1: #0ea5e9;
-      --brand2: #2563eb;
-      --brand3: #22d3ee;
-      --bg: #0b1220;
-      --card: #0f172acc;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --success: #22c55e;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --radius: 18px;
-      --shadow: 0 10px 25px rgba(0, 0, 0, .25);
-      --glass-border: 1px solid rgba(255, 255, 255, .08);
-      --maxw: 520px;
-      --navh: 88px;
-      --safe: env(safe-area-inset-bottom, 0px);
-    }
-
-    * { box-sizing: border-box }
-    html, body { height: 100% }
-    body{
-      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial; color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 80% -10%, #38bdf8 0%, transparent 50%),
-        radial-gradient(1000px 800px at -10% 20%, #6366f1 0%, transparent 45%),
-        linear-gradient(180deg, #0b1220 10%, #0b1220 70%);
-      min-height:100dvh; display:flex; justify-content:center;
-    }
-
-    .app{
-      width:100%; max-width:var(--maxw); min-height:100dvh; display:flex; flex-direction:column; position:relative;
-      padding-bottom: calc(var(--navh) + var(--safe) + 24px);
-    }
-
-    header.appbar{
-      position:sticky; top:0; z-index:10;
-      background:linear-gradient(180deg, rgba(14,165,233,.25), rgba(14,165,233,0));
-      backdrop-filter: blur(8px);
-      border-bottom: var(--glass-border);
-    }
-    .appbar__inner{ display:flex; align-items:center; gap:12px; padding:14px 18px; }
-    .avatar{
-      width:40px;height:40px;border-radius:50%;
-      background:linear-gradient(135deg,var(--brand2),var(--brand3));
-      display:grid;place-items:center; box-shadow:0 6px 18px rgba(37,99,235,.35); font-weight:700;
-    }
-    .hello{ line-height:1.1 } .hello small{ color:var(--muted) } .hello b{ font-weight:700 }
-
-    .tabs input[type="radio"]{ display:none }
-
-    main{ flex:1; padding:16px; display:grid; gap:16px; padding-bottom: calc(var(--navh) + var(--safe) + 24px); }
-
-    .screen{ display:none; animation:fade .25s ease }
-    .screen::after{ content:""; display:block; height:12px }
-    @keyframes fade{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
-
-    #tab-home:checked~main #home,
-    #tab-wallet:checked~main #wallet,
-    #tab-stats:checked~main #stats,
-    #tab-settings:checked~main #settings{ display:block }
-
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border: var(--glass-border); border-radius: var(--radius); box-shadow: var(--shadow);
-    }
-    .card.pad{ padding:16px }
-
-    .balance-card{
-      padding:18px; border-radius:22px;
-      background:
-        linear-gradient(135deg, rgba(34,211,238,.25), rgba(99,102,241,.25)),
-        radial-gradient(600px 300px at 90% -20%, rgba(34,197,94,.15), transparent 60%),
-        linear-gradient(180deg, rgba(14,165,233,.35), rgba(37,99,235,.15));
-      border:1px solid rgba(255,255,255,.12); position:relative; overflow:hidden;
-    }
-    .balance-card .tag{ font-size:12px; color:#bdeafe; letter-spacing:.4px; text-transform:uppercase; }
-    .balance-amount{ margin:6px 0 2px; font-size:34px; font-weight:800; letter-spacing:.3px; text-shadow:0 3px 12px rgba(0,0,0,.35); }
-    .subtext{ color:#cbd5e1; font-size:13px }
-
-    .wallet-item{ display:flex; align-items:center; justify-content:space-between; padding:14px; border-bottom:1px dashed rgba(255,255,255,.08) }
-    .wallet-item:last-child{ border-bottom:0 }
-    .wallet-left{ display:flex; align-items:center; gap:12px }
-    .wallet-icon{
-      width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;color:#fff;
-      background:linear-gradient(135deg,var(--brand1),var(--brand2));
-      box-shadow:0 6px 16px rgba(14,165,233,.35);
-    }
-    .wallet-meta b{ font-size:14px } .wallet-meta small{ color:var(--muted); display:block; margin-top:2px }
-    .pill{ padding:6px 10px; border-radius:999px; font-weight:700; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); font-size:13px }
-    .btn-del{ margin-left:8px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); color:#fecaca; padding:6px 8px; border-radius:10px; cursor:pointer }
-
-    .tx{ display:flex; align-items:center; justify-content:space-between; padding:14px 6px; border-bottom:1px dashed rgba(255,255,255,.08) }
-    .tx:last-child{ border-bottom:0 }
-    .tx-info{ display:flex; align-items:center; gap:12px }
-    .tx .ico{ width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08) }
-    .tx-title{ font-weight:600 } .tx-meta{ color:var(--muted); font-size:12px }
-    .tx-amount{ font-weight:700 } .tx-amount.minus{ color:var(--danger) } .tx-amount.plus{ color:var(--success) }
-
-    .donut{ --a:38; --b:22; --c:18; --d:12; --e:10;
-      width:160px;height:160px;border-radius:50%;
-      background: conic-gradient(#60a5fa calc(var(--a)*1%), #34d399 0 calc((var(--a)+var(--b))*1%), #f59e0b 0 calc((var(--a)+var(--b)+var(--c))*1%), #ef4444 0 calc((var(--a)+var(--b)+var(--c)+var(--d))*1%), #a78bfa 0 100%);
-      display:grid;place-items:center;position:relative;margin:auto; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.08);
-    }
-    .donut::after{ content:""; width:100px;height:100px;border-radius:50%; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.08) }
-    .legend{ display:grid; gap:10px; font-size:13px } .legend .lg{ display:flex; align-items:center; gap:10px } .dot{ width:12px; height:12px; border-radius:3px }
-    .chart-card{ display:grid; grid-template-columns:160px 1fr; gap:14px; align-items:center }
-
-    .bars{ --max:8; display:grid; align-items:end; gap:10px; grid-template-columns:repeat(6,1fr); height:160px; padding:6px 4px 0; border-left:1px dashed rgba(255,255,255,.1); border-bottom:1px dashed rgba(255,255,255,.1) }
-    .bar{ display:grid; align-items:end; gap:6px; justify-items:center }
-    .bar .col{ width:14px; border-radius:6px 6px 0 0; background:linear-gradient(180deg,#38bdf8,#2563eb); box-shadow:0 6px 16px rgba(37,99,235,.35) inset }
-    .bar .col.alt{ background:linear-gradient(180deg,#34d399,#059669); box-shadow:0 6px 16px rgba(5,150,105,.35) inset }
-    .bar label{ font-size:11px; color:var(--muted) }
-
-    .sect-title{ font-weight:700; letter-spacing:.3px; margin:0 0 10px; display:flex; align-items:center; gap:8px }
-    .sect-title .mini{ color:var(--muted); font-weight:500; font-size:13px }
-
-    .bottomnav{
-      position:fixed; left:50%; transform:translateX(-50%); bottom:14px;
-      width:calc(100% - 24px); max-width:calc(var(--maxw) - 24px);
-      display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:10px;
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-      backdrop-filter: blur(10px); border: var(--glass-border); border-radius:20px; box-shadow: var(--shadow);
-      padding-bottom: calc(10px + var(--safe));
-    }
-    .navbtn{ display:grid; justify-items:center; gap:6px; padding:10px 0; border-radius:14px; cursor:pointer; color:#cfeafe; transition:.2s ease; user-select:none }
-    .navbtn i{ font-size:18px } .navbtn span{ font-size:12px }
-    #tab-home:checked~.bottomnav label[for="tab-home"],
-    #tab-wallet:checked~.bottomnav label[for="tab-wallet"],
-    #tab-stats:checked~.bottomnav label[for="tab-stats"],
-    #tab-settings:checked~.bottomnav label[for="tab-settings"]{
-      background:linear-gradient(180deg, rgba(56,189,248,.25), rgba(37,99,235,.25));
-      color:#fff; box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
-    }
-
-    .divider{ height:1px; background:rgba(255,255,255,.07); margin:8px 0 }
-    .hint{ color:var(--muted); font-size:12px }
-    .btn-ghost{
-      padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.18);
-      background:rgba(255,255,255,.06); color:#e2e8f0; font-weight:600;
-      display:inline-grid; grid-auto-flow:column; align-items:center; gap:8px; cursor:pointer;
-    }
-    .center{ display:grid; place-items:center }
-
-    .home-stack{ display:grid; gap:16px }
-    #stats .card + .card{ margin-top:22px }
-    .btn-export{
-      background:linear-gradient(135deg,#22c55e,#16a34a);
-      border:1px solid rgba(255,255,255,.25);
-      padding:14px 18px; border-radius:14px; font-weight:800; box-shadow:0 10px 24px rgba(22,163,74,.35);
-    }
-
-    /* Modal umum */
-    .modal{ position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.4); backdrop-filter:blur(2px); z-index:50; padding:16px }
-    .modal.show{ display:grid }
-    .modal-card{
-      width:100%; max-width:520px;
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      border: var(--glass-border); border-radius:18px; padding:16px; box-shadow:var(--shadow);
-    }
-    .form-row{ display:grid; gap:10px; margin-top:8px }
-    .input,.select,.date{
-      width:100%; padding:12px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.16);
-      background:rgba(2,6,23,.35); color:var(--text); outline:none;
-    }
-    .modal-actions{ display:grid; grid-auto-flow:column; gap:10px; justify-content:end; margin-top:12px }
-    .btn-primary{ background:linear-gradient(135deg,#38bdf8,#2563eb); border:1px solid rgba(255,255,255,.25); color:#fff; padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer }
-    .btn-secondary{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); color:#e2e8f0; padding:10px 14px; border-radius:12px; cursor:pointer }
-
-    /* Tag tipe */
-    .tagtype{ padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(255,255,255,.2); }
-    .tag-in{ background:rgba(34,197,94,.15); color:#bbf7d0; }
-    .tag-out{ background:rgba(239,68,68,.15); color:#fecaca; }
-
-    /* Mini list kategori */
-    .catitem{ display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px dashed rgba(255,255,255,.08) }
-    .catitem:last-child{ border-bottom:0 }
-    .btn-mini-del{ border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); color:#fecaca; padding:4px 8px; border-radius:8px; cursor:pointer }
-
-    /* icon color presets dompet */
-    .grad-blue{ background:linear-gradient(135deg,#0ea5e9,#2563eb) }
-    .grad-green{ background:linear-gradient(135deg,#34d399,#059669) }
-    .grad-amber{ background:linear-gradient(135deg,#f59e0b,#f97316) }
-
-    @media (max-width:420px){
-      .chart-card{ grid-template-columns:1fr; text-align:center }
-      .legend{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="app tabs">
-    <!-- NAV radios -->
-    <input type="radio" id="tab-home" name="tab" checked>
-    <input type="radio" id="tab-wallet" name="tab">
-    <input type="radio" id="tab-stats" name="tab">
-    <input type="radio" id="tab-settings" name="tab">
-
-    <header class="appbar">
-      <div class="appbar__inner">
-        <div class="avatar">A</div>
-        <div class="hello">
-          <small>Selamat datang,</small><br>
-          <b>Aryo Abi Putra</b>
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <!-- HOME -->
-      <section id="home" class="screen">
-        <div class="balance-card card">
-          <div class="tag">Total Saldo</div>
-          <div class="balance-amount" id="totalBalance">Rp 0</div>
-          <div class="subtext" id="summaryText">Ringkasan dari 0 dompet aktif</div>
-        </div>
-
-        <div class="home-stack">
-          <!-- Saldo per Dompet -->
-          <div class="card pad">
-            <div class="sect-title">
-              <i class="fa-solid fa-wallet"></i> Saldo per Dompet
-              <span class="mini" id="walletCountHint"></span>
-            </div>
-            <div id="homeWalletList"></div>
-          </div>
-
-          <!-- Riwayat Singkat (dari transaksi) -->
-          <div class="card pad">
-            <div class="sect-title">
-              <i class="fa-solid fa-clock-rotate-left"></i> Riwayat Singkat
-              <span class="mini">• 10 terbaru</span>
-            </div>
-            <div id="recentTx"></div>
-            <div class="divider"></div>
-            <div class="center">
-              <button id="btnOpenTx" class="btn-ghost"><i class="fa-solid fa-plus"></i> Tambah Transaksi</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- WALLET -->
-      <section id="wallet" class="screen">
-        <div class="card pad">
-          <div class="sect-title">
-            <i class="fa-solid fa-wallet"></i> Daftar Wallet
-            <span class="mini">• Taruh semua akun kamu</span>
-          </div>
-          <div class="divider"></div>
-          <div id="walletList"></div>
-          <div class="center" style="margin-top:12px">
-            <button id="btnOpenAdd" class="btn-ghost"><i class="fa-solid fa-plus"></i> Tambah Wallet</button>
-          </div>
-          <div class="hint" style="margin-top:8px">Klik ikon 🗑 untuk menghapus wallet (transaksi terkait ikut dihapus).</div>
-        </div>
-      </section>
-
-      <!-- STATS (visual dummy, bisa kita sambungkan nanti) -->
-      <section id="stats" class="screen">
-        <div class="card pad chart-card">
-          <div class="donut" title="Pengeluaran per Kategori"></div>
-          <div>
-            <div class="sect-title"><i class="fa-solid fa-chart-pie"></i> Pengeluaran per Kategori</div>
-            <div class="legend">
-              <div class="lg"><span class="dot" style="background:#60a5fa"></span> Kategori A</div>
-              <div class="lg"><span class="dot" style="background:#34d399"></span> Kategori B</div>
-              <div class="lg"><span class="dot" style="background:#f59e0b"></span> Kategori C</div>
-              <div class="lg"><span class="dot" style="background:#ef4444"></span> Kategori D</div>
-              <div class="lg"><span class="dot" style="background:#a78bfa"></span> Kategori E</div>
-            </div>
-            <div class="hint" style="margin-top:8px">Grafik contoh. Nanti bisa kita tarik dari data transaksi.</div>
-          </div>
-        </div>
-
-        <div class="card pad">
-          <div class="sect-title"><i class="fa-solid fa-chart-column"></i> Pemasukan vs Pengeluaran</div>
-          <div class="bars" style="--max: 8">
-            <div class="bar"><div class="col alt" style="height: calc(6/var(--max)*100%)"></div><div class="col" style="height: calc(4/var(--max)*100%)"></div><label>Jan</label></div>
-            <div class="bar"><div class="col alt" style="height: calc(5/var(--max)*100%)"></div><div class="col" style="height: calc(3/var(--max)*100%)"></div><label>Feb</label></div>
-            <div class="bar"><div class="col alt" style="height: calc(8/var(--max)*100%)"></div><div class="col" style="height: calc(6/var(--max)*100%)"></div><label>Mar</label></div>
-            <div class="bar"><div class="col alt" style="height: calc(7/var(--max)*100%)"></div><div class="col" style="height: calc(5/var(--max)*100%)"></div><label>Apr</label></div>
-            <div class="bar"><div class="col alt" style="height: calc(6/var(--max)*100%)"></div><div class="col" style="height: calc(4/var(--max)*100%)"></div><label>Mei</label></div>
-            <div class="bar"><div class="col alt" style="height: calc(6/var(--max)*100%)"></div><div class="col" style="height: calc(5/var(--max)*100%)"></div><label>Jun</label></div>
-          </div>
-          <div class="hint" style="margin-top:8px">Nanti bisa dibuat otomatis juga.</div>
-        </div>
-      </section>
-
-      <!-- SETTINGS -->
-      <section id="settings" class="screen">
-        <div class="card pad center" style="padding:24px">
-          <div class="sect-title" style="justify-content:center">
-            <i class="fa-solid fa-list"></i> Kategori & Export
-          </div>
-          <div class="center" style="gap:10px">
-            <button id="btnOpenCats" class="btn-ghost"><i class="fa-solid fa-tags"></i> Kelola Kategori</button>
-            <button class="btn-ghost btn-export"><i class="fa-solid fa-download"></i> Export ke Excel</button>
-          </div>
-          <div class="hint" style="margin-top:10px">Kategori tanpa bawaan—kamu atur sendiri. Export bisa ditambahkan pakai SheetJS nanti.</div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Bottom Navigation -->
-    <nav class="bottomnav card">
-      <label class="navbtn" for="tab-home"><i class="fa-solid fa-house"></i><span>Home</span></label>
-      <label class="navbtn" for="tab-wallet"><i class="fa-solid fa-wallet"></i><span>Wallet</span></label>
-      <label class="navbtn" for="tab-stats"><i class="fa-solid fa-chart-column"></i><span>Statistik</span></label>
-      <label class="navbtn" for="tab-settings"><i class="fa-solid fa-gear"></i><span>Setting</span></label>
-    </nav>
-  </div>
-
-  <!-- MODAL: Tambah Wallet -->
-  <div class="modal" id="modalAddWallet">
-    <div class="modal-card">
-      <div class="sect-title"><i class="fa-solid fa-plus"></i> Tambah Wallet</div>
-      <div class="form-row">
-        <input id="inWName" class="input" type="text" placeholder="Nama Wallet (contoh: Bank BRI)" />
-        <input id="inWNote" class="input" type="text" placeholder="Catatan/Label (contoh: Utama / Belanja)" />
-        <input id="inWBalance" class="input" type="number" inputmode="numeric" placeholder="Saldo awal (contoh: 1500000)" />
-        <select id="inWTheme" class="select">
-          <option value="blue|fa-building-columns" selected>Bank • Biru</option>
-          <option value="green|fa-mobile-screen">E-Wallet • Hijau</option>
-          <option value="amber|fa-piggy-bank">Tabungan • Oranye</option>
-        </select>
-      </div>
-      <div class="modal-actions">
-        <button data-close="#modalAddWallet" class="btn-secondary">Batal</button>
-        <button id="btnDoAddWallet" class="btn-primary">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Tambah Transaksi -->
-  <div class="modal" id="modalTx">
-    <div class="modal-card">
-      <div class="sect-title"><i class="fa-solid fa-plus"></i> Tambah Transaksi</div>
-      <div class="form-row">
-        <div style="display:grid; grid-auto-flow:column; gap:8px; justify-content:start">
-          <span id="tagIn" class="tagtype tag-in" data-type="in">Pemasukan</span>
-          <span id="tagOut" class="tagtype tag-out" data-type="out">Pengeluaran</span>
-        </div>
-        <input id="inAmount" class="input" type="number" inputmode="numeric" placeholder="Nominal (contoh: 125000)" />
-        <select id="inWallet" class="select"></select>
-        <select id="inCategory" class="select"></select>
-        <input id="inNoteTx" class="input" type="text" placeholder="Catatan (opsional)" />
-        <input id="inDate" class="date" type="date" />
-        <div class="hint" id="catHint" style="display:none">Belum ada kategori untuk tipe ini. Tambahkan di <b>Setting → Kelola Kategori</b>.</div>
-      </div>
-      <div class="modal-actions">
-        <button data-close="#modalTx" class="btn-secondary">Batal</button>
-        <button id="btnDoAddTx" class="btn-primary">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Kelola Kategori -->
-  <div class="modal" id="modalCats">
-    <div class="modal-card">
-      <div class="sect-title"><i class="fa-solid fa-tags"></i> Kelola Kategori</div>
-      <div class="form-row">
-        <select id="catType" class="select">
-          <option value="income">Pemasukan</option>
-          <option value="expense">Pengeluaran</option>
-        </select>
-        <div style="display:grid; grid-auto-flow:column; gap:8px; align-items:center">
-          <input id="catName" class="input" type="text" placeholder="Nama kategori (mis. Gaji / Makan)" />
-          <button id="btnAddCat" class="btn-primary">Tambah</button>
-        </div>
-        <div id="catList"></div>
-      </div>
-      <div class="modal-actions">
-        <button data-close="#modalCats" class="btn-secondary">Selesai</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    /* ===== Keys & Utils ===== */
-    const LS_WALLETS = 'fin_wallets';
-    const LS_CATS = 'fin_categories';     // { income:[], expense:[] }
-    const LS_TX = 'fin_transactions';     // array
-
-    const $ = (s) => document.querySelector(s);
-    const $$ = (s) => document.querySelectorAll(s);
-
-    const fmtIDR = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Number(n||0));
-    const fmtDate = (iso) => {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' });
-    };
-    const themeCls = (t)=> t==='green'?'grad-green':(t==='amber'?'grad-amber':'grad-blue');
-    const iconCls = (i)=> `fa-solid ${i}`;
-
-    const uuid = () => (crypto?.randomUUID?.() || Math.random().toString(36).slice(2));
-
-    /* ===== Load/Save ===== */
-    function loadWallets(){
-      try{ const r = localStorage.getItem(LS_WALLETS); if(r) return JSON.parse(r) }catch{}
-      // seed contoh:
-      return [
-        { id: uuid(), name:'Bank BRI', note:'Utama', balance:8200000, theme:'blue', icon:'fa-building-columns' },
-        { id: uuid(), name:'DANA', note:'Belanja & Harian', balance:2140000, theme:'green', icon:'fa-mobile-screen' },
-        { id: uuid(), name:'Tabungan', note:'Cadangan', balance:2200000, theme:'amber', icon:'fa-piggy-bank' },
-      ];
-    }
-    function saveWallets(v){ localStorage.setItem(LS_WALLETS, JSON.stringify(v)); }
-
-    function loadCats(){
-      try{ const r = localStorage.getItem(LS_CATS); if(r) return JSON.parse(r) }catch{}
-      return { income:[], expense:[] }; // tanpa bawaan
-    }
-    function saveCats(v){ localStorage.setItem(LS_CATS, JSON.stringify(v)); }
-
-    function loadTx(){
-      try{ const r = localStorage.getItem(LS_TX); if(r) return JSON.parse(r) }catch{}
-      return [];
-    }
-    function saveTx(v){ localStorage.setItem(LS_TX, JSON.stringify(v)); }
-
-    /* ===== State ===== */
-    let wallets = loadWallets();
-    let cats = loadCats();
-    let txs = loadTx();
-    let txType = 'out'; // default pengeluaran
-
-    /* ===== Renders ===== */
-    function renderSummary(){
-      const total = wallets.reduce((a,w)=> a + (Number(w.balance)||0), 0);
-      $('#totalBalance').textContent = fmtIDR(total);
-      $('#summaryText').textContent = `Ringkasan dari ${wallets.length} dompet aktif`;
-      $('#walletCountHint').textContent = wallets.length ? `• ${wallets.length} dompet` : '';
-    }
-
-    function walletItemHTML(w){
-      return `<div class="wallet-item" data-id="${w.id}">
-        <div class="wallet-left">
-          <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(w.icon)}"></i></div>
-          <div class="wallet-meta"><b>${w.name}</b><small>${w.note||''}</small></div>
-        </div>
-        <div>
-          <span class="pill">${fmtIDR(w.balance)}</span>
-          <button class="btn-del" data-action="del" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
-        </div>
-      </div>`;
-    }
-    function walletItemHomeHTML(w){
-      return `<div class="wallet-item">
-        <div class="wallet-left">
-          <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(w.icon)}"></i></div>
-          <div class="wallet-meta"><b>${w.name}</b><small>${w.note||''}</small></div>
-        </div>
-        <div class="pill">${fmtIDR(w.balance)}</div>
-      </div>`;
-    }
-    function renderWallets(){
-      const wrapList = $('#walletList');
-      const wrapHome = $('#homeWalletList');
-      if(!wallets.length){
-        wrapList.innerHTML = `<div class="hint">Belum ada wallet. Tambahkan sekarang.</div>`;
-        wrapHome.innerHTML = `<div class="hint">Belum ada dompet.</div>`;
-      }else{
-        wrapList.innerHTML = wallets.map(walletItemHTML).join('');
-        wrapHome.innerHTML = wallets.map(walletItemHomeHTML).join('');
-      }
-    }
-
-    function recentTxItemHTML(t){
-      const sign = t.type==='in' ? '+' : '-';
-      const cls = t.type==='in' ? 'plus' : 'minus';
-      const w = wallets.find(x=>x.id===t.walletId);
-      const walletName = w? w.name : '—';
-      const cat = t.category || 'Tanpa Kategori';
-      return `<div class="tx">
-        <div class="tx-info">
-          <div class="ico">${ t.type==='in' ? '<i class="fa-solid fa-arrow-down"></i>' : '<i class="fa-solid fa-arrow-up"></i>' }</div>
-          <div>
-            <div class="tx-title">${cat}</div>
-            <div class="tx-meta">${fmtDate(t.date)} • ${walletName}${t.note? ' • '+t.note:''}</div>
-          </div>
-        </div>
-        <div class="tx-amount ${cls}">${sign}${fmtIDR(t.amount)}</div>
-      </div>`;
-    }
-    function renderRecentTx(){
-      const wrap = $('#recentTx');
-      if(!txs.length){ wrap.innerHTML = `<div class="hint">Belum ada transaksi.</div>`; return; }
-      const latest = [...txs].sort((a,b)=> new Date(b.date) - new Date(a.date)).slice(0,10);
-      wrap.innerHTML = latest.map(recentTxItemHTML).join('');
-    }
-
-    function renderAll(){
-      renderSummary();
-      renderWallets();
-      renderRecentTx();
-    }
-
-    /* ===== Wallet: add / delete ===== */
-    function openModal(sel){ $(sel).classList.add('show'); }
-    function closeModal(sel){ $(sel).classList.remove('show'); }
-
-    function doAddWallet(){
-      const name = $('#inWName').value.trim();
-      const note = $('#inWNote').value.trim();
-      const bal = Number($('#inWBalance').value || 0);
-      const [theme, icon] = $('#inWTheme').value.split('|');
-      if(!name){ alert('Nama wallet wajib diisi.'); return; }
-      wallets.push({ id: uuid(), name, note, balance: bal, theme, icon });
-      saveWallets(wallets);
-      renderAll();
-      closeModal('#modalAddWallet');
-      $('#tab-wallet').checked = true;
-    }
-    function doDeleteWallet(id){
-      const related = txs.filter(t=>t.walletId===id).length;
-      const msg = related ? `Hapus wallet ini? ${related} transaksi terkait akan dihapus.` : `Hapus wallet ini?`;
-      if(!confirm(msg)) return;
-      // remove wallet
-      wallets = wallets.filter(w=>w.id!==id);
-      // remove transactions of this wallet
-      txs = txs.filter(t=>t.walletId!==id);
-      saveWallets(wallets); saveTx(txs);
-      renderAll();
-    }
-
-    /* ===== Categories ===== */
-    function renderCatList(){
-      const type = $('#catType').value; // income | expense
-      const list = cats[type] || [];
-      const wrap = $('#catList');
-      if(!list.length){ wrap.innerHTML = `<div class="hint">Belum ada kategori ${type==='income'?'pemasukan':'pengeluaran'}.</div>`; return; }
-      wrap.innerHTML = list.map(c => `
-        <div class="catitem" data-name="${c}">
-          <div>${c}</div>
-          <button class="btn-mini-del" data-del="${c}"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-      `).join('');
-    }
-    function addCategory(){
-      const type = $('#catType').value;
-      const name = $('#catName').value.trim();
-      if(!name){ alert('Nama kategori wajib diisi.'); return; }
-      if(!cats[type]) cats[type] = [];
-      if(cats[type].includes(name)){ alert('Kategori sudah ada.'); return; }
-      cats[type].push(name);
-      saveCats(cats);
-      $('#catName').value = '';
-      renderCatList();
-      // refresh selector di modal transaksi jika tipe cocok
-      if((txType==='in' && type==='income') || (txType==='out' && type==='expense')){
-        fillTxCategory();
-      }
-    }
-    function deleteCategory(name){
-      const type = $('#catType').value;
-      if(!confirm(`Hapus kategori "${name}"?`)) return;
-      cats[type] = (cats[type]||[]).filter(x=>x!==name);
-      saveCats(cats);
-      renderCatList();
-      if((txType==='in' && type==='income') || (txType==='out' && type==='expense')){
-        fillTxCategory();
-      }
-    }
-
-    /* ===== Transactions ===== */
-    function setTxType(t){
-      txType = t; // 'in' | 'out'
-      // highlight tags
-      $('#tagIn').style.outline = t==='in' ? '2px solid rgba(34,197,94,.6)' : 'none';
-      $('#tagOut').style.outline = t==='out' ? '2px solid rgba(239,68,68,.6)' : 'none';
-      fillTxCategory();
-    }
-    function fillTxWallet(){
-      const sel = $('#inWallet');
-      if(!wallets.length){ sel.innerHTML = `<option value="">(Belum ada wallet)</option>`; return; }
-      sel.innerHTML = wallets.map(w=> `<option value="${w.id}">${w.name}</option>`).join('');
-    }
-    function fillTxCategory(){
-      const sel = $('#inCategory');
-      const type = (txType==='in') ? 'income' : 'expense';
-      const list = cats[type] || [];
-      if(!list.length){
-        sel.innerHTML = `<option value="">(Belum ada kategori)</option>`;
-        $('#catHint').style.display = 'block';
-      }else{
-        sel.innerHTML = list.map(c=> `<option value="${c}">${c}</option>`).join('');
-        $('#catHint').style.display = 'none';
-      }
-    }
-    function openTxModal(){
-      // defaults
-      setTxType('out'); // pengeluaran
-      $('#inAmount').value = '';
-      $('#inNoteTx').value = '';
-      $('#inDate').valueAsDate = new Date();
-      fillTxWallet();
-      fillTxCategory();
-      openModal('#modalTx');
-    }
-    function doAddTx(){
-      const amount = Number($('#inAmount').value || 0);
-      const walletId = $('#inWallet').value;
-      const category = $('#inCategory').value;
-      const note = $('#inNoteTx').value.trim();
-      const date = $('#inDate').value || new Date().toISOString().slice(0,10);
-      if(!amount || amount<=0){ alert('Nominal harus > 0'); return; }
-      if(!walletId){ alert('Pilih dompet'); return; }
-      // kategori boleh kosong (tanpa kategori), sesuai permintaan "custom" tanpa bawaan
-      const t = { id: uuid(), type: txType, amount, category, note, walletId, date };
-      txs.push(t);
-      // update saldo wallet
-      const idx = wallets.findIndex(w=>w.id===walletId);
-      if(idx>-1){
-        wallets[idx].balance = Number(wallets[idx].balance||0) + (txType==='in'? amount : -amount);
-      }
-      saveTx(txs); saveWallets(wallets);
-      renderAll();
-      closeModal('#modalTx');
-      $('#tab-home').checked = true; // balik ke beranda biar kelihatan
-    }
-
-    /* ===== Events ===== */
-    document.addEventListener('DOMContentLoaded', ()=>{
-      renderAll();
-
-      // Open modals
-      $('#btnOpenAdd').addEventListener('click', ()=> openModal('#modalAddWallet'));
-      $('#btnOpenTx').addEventListener('click', openTxModal);
-      $('#btnOpenCats').addEventListener('click', ()=>{ openModal('#modalCats'); renderCatList(); });
-
-      // Close modals by btn
-      $$('[data-close]').forEach(btn=>{
-        btn.addEventListener('click', ()=> closeModal(btn.getAttribute('data-close')));
-      });
-      // Close by backdrop click
-      ['#modalAddWallet','#modalTx','#modalCats'].forEach(sel=>{
-        $(sel).addEventListener('click', (e)=>{ if(e.target===e.currentTarget) closeModal(sel); });
-      });
-
-      // Wallet save
-      $('#btnDoAddWallet').addEventListener('click', doAddWallet);
-      // Wallet delete (delegation)
-      $('#walletList').addEventListener('click', (e)=>{
-        const btn = e.target.closest('[data-action="del"]');
-        if(!btn) return;
-        const row = e.target.closest('.wallet-item');
-        const id = row?.dataset?.id;
-        if(id) doDeleteWallet(id);
-      });
-
-      // Tx type toggle
-      $('#tagIn').addEventListener('click', ()=> setTxType('in'));
-      $('#tagOut').addEventListener('click', ()=> setTxType('out'));
-
-      // Tx save
-      $('#btnDoAddTx').addEventListener('click', doAddTx);
-
-      // Categories
-      $('#catType').addEventListener('change', renderCatList);
-      $('#btnAddCat').addEventListener('click', addCategory);
-      $('#catList').addEventListener('click', (e)=>{
-        const d = e.target.closest('[data-del]')?.getAttribute('data-del');
-        if(d) deleteCategory(d);
-      });
-    });
-  </script>
-</body>
-</html>
-=======
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FinNote — Desain ala DANA (HTML+CSS)</title>
+    <title>FinNote — DANA-like (HTML+CSS+JS)</title>
 
     <!-- Font & Icon -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-    <style>
-        :root {
-            --brand1: #0ea5e9;
-            /* sky-500 */
-            --brand2: #2563eb;
-            /* indigo-600 */
-            --brand3: #22d3ee;
-            /* cyan-400 */
-            --bg: #0b1220;
-            /* night */
-            --card: #0f172acc;
-            /* slate-900/80 */
-            --text: #e5e7eb;
-            /* gray-200 */
-            --muted: #94a3b8;
-            /* slate-400 */
-            --success: #22c55e;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --radius: 18px;
-            --shadow: 0 10px 25px rgba(0, 0, 0, .25);
-            --glass-border: 1px solid rgba(255, 255, 255, .08);
-            --maxw: 520px;
-            --navh: 88px;
-            /* tinggi bottom nav */
-            --safe: env(safe-area-inset-bottom, 0px);
-        }
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
 
-        * {
-            box-sizing: border-box
-        }
+    <!-- Loader SheetJS (multi-CDN + guard). Biarkan sebelum app.js -->
+    <script>
+        /* ========= Loader SheetJS (multi-CDN + flag) ========= */
+        (function loadSheetJS() {
+            if (window.XLSX) { window.__XLSX_READY__ = true; return; }
 
-        html,
-        body {
-            height: 100%
-        }
-
-        body {
-            margin: 0;
-            font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
-            color: var(--text);
-            background:
-                radial-gradient(1200px 600px at 80% -10%, #38bdf8 0%, transparent 50%),
-                radial-gradient(1000px 800px at -10% 20%, #6366f1 0%, transparent 45%),
-                linear-gradient(180deg, #0b1220 10%, #0b1220 70%);
-            min-height: 100dvh;
-            display: flex;
-            justify-content: center;
-        }
-
-        /* App shell */
-        .app {
-            width: 100%;
-            max-width: var(--maxw);
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            padding-bottom: calc(var(--navh) + var(--safe) + 24px);
-            /* space for bottom nav */
-        }
-
-        header.appbar {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: linear-gradient(180deg, rgba(14, 165, 233, .25), rgba(14, 165, 233, 0));
-            backdrop-filter: blur(8px);
-            border-bottom: var(--glass-border);
-        }
-
-        .appbar__inner {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 18px;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--brand2), var(--brand3));
-            display: grid;
-            place-items: center;
-            box-shadow: 0 6px 18px rgba(37, 99, 235, .35);
-            font-weight: 700;
-        }
-
-        .hello {
-            line-height: 1.1
-        }
-
-        .hello small {
-            color: var(--muted)
-        }
-
-        .hello b {
-            font-weight: 700
-        }
-
-        /* Hidden radios drive navigation */
-        .tabs input[type="radio"] {
-            display: none
-        }
-
-        main {
-            flex: 1;
-            padding: 16px;
-            display: grid;
-            gap: 16px;
-            padding-bottom: calc(var(--navh) + var(--safe) + 24px);
-        }
-
-        /* Screens */
-        .screen {
-            display: none;
-            animation: fade .25s ease
-        }
-
-        .screen::after {
-            content: "";
-            display: block;
-            height: 12px;
-            /* spacer kecil */
-        }
-
-
-        @keyframes fade {
-            from {
-                opacity: 0;
-                transform: translateY(6px)
+            function add(src, onload, onerror) {
+                var s = document.createElement("script");
+                s.src = src;
+                s.defer = true;
+                s.onload = function () {
+                    console.log("SheetJS loaded:", src);
+                    window.__XLSX_READY__ = true;
+                    onload && onload();
+                };
+                s.onerror = function () {
+                    console.warn("Gagal memuat:", src);
+                    onerror && onerror();
+                };
+                document.head.appendChild(s);
             }
 
-            to {
-                opacity: 1;
-                transform: none
-            }
-        }
-
-        /* Show logic */
-        #tab-home:checked~main #home,
-        #tab-wallet:checked~main #wallet,
-        #tab-stats:checked~main #stats,
-        #tab-settings:checked~main #settings {
-            display: block
-        }
-
-        /* Cards */
-        .card {
-            background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .03));
-            border: var(--glass-border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-
-        .card.pad {
-            padding: 16px
-        }
-
-        .balance-card {
-            padding: 18px;
-            border-radius: 22px;
-            background:
-                linear-gradient(135deg, rgba(34, 211, 238, .25), rgba(99, 102, 241, .25)),
-                radial-gradient(600px 300px at 90% -20%, rgba(34, 197, 94, .15), transparent 60%),
-                linear-gradient(180deg, rgba(14, 165, 233, .35), rgba(37, 99, 235, .15));
-            border: 1px solid rgba(255, 255, 255, .12);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .balance-card .tag {
-            font-size: 12px;
-            color: #bdeafe;
-            letter-spacing: .4px;
-            text-transform: uppercase;
-        }
-
-        .balance-amount {
-            margin: 6px 0 2px;
-            font-size: 34px;
-            font-weight: 800;
-            letter-spacing: .3px;
-            text-shadow: 0 3px 12px rgba(0, 0, 0, .35);
-        }
-
-        .subtext {
-            color: #cbd5e1;
-            font-size: 13px
-        }
-
-        /* Wallet list */
-        .wallet-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px;
-            border-bottom: 1px dashed rgba(255, 255, 255, .08);
-        }
-
-        .wallet-item:last-child {
-            border-bottom: 0
-        }
-
-        .wallet-left {
-            display: flex;
-            align-items: center;
-            gap: 12px
-        }
-
-        .wallet-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            display: grid;
-            place-items: center;
-            font-size: 18px;
-            background: linear-gradient(135deg, var(--brand1), var(--brand2));
-            box-shadow: 0 6px 16px rgba(14, 165, 233, .35);
-        }
-
-        .wallet-meta b {
-            font-size: 14px
-        }
-
-        .wallet-meta small {
-            color: var(--muted);
-            display: block;
-            margin-top: 2px
-        }
-
-        .pill {
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-weight: 700;
-            background: rgba(255, 255, 255, .07);
-            border: 1px solid rgba(255, 255, 255, .12);
-            font-size: 13px;
-        }
-
-        /* Transactions */
-        .tx {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 6px;
-            border-bottom: 1px dashed rgba(255, 255, 255, .08)
-        }
-
-        .tx:last-child {
-            border-bottom: 0
-        }
-
-        .tx-info {
-            display: flex;
-            align-items: center;
-            gap: 12px
-        }
-
-        .tx .ico {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: grid;
-            place-items: center;
-            background: rgba(255, 255, 255, .06);
-            border: 1px solid rgba(255, 255, 255, .08)
-        }
-
-        .tx-title {
-            font-weight: 600
-        }
-
-        .tx-meta {
-            color: var(--muted);
-            font-size: 12px
-        }
-
-        .tx-amount {
-            font-weight: 700
-        }
-
-        .tx-amount.minus {
-            color: var(--danger)
-        }
-
-        .tx-amount.plus {
-            color: var(--success)
-        }
-
-        /* Charts (pure CSS) */
-        .donut {
-            --a: 38;
-            /* makanan % */
-            --b: 22;
-            /* transport % */
-            --c: 18;
-            /* hiburan % */
-            --d: 12;
-            /* tagihan % */
-            --e: 10;
-            /* lain2 % */
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background:
-                conic-gradient(#60a5fa calc(var(--a)*1%),
-                    #34d399 0 calc((var(--a)+var(--b))*1%),
-                    #f59e0b 0 calc((var(--a)+var(--b)+var(--c))*1%),
-                    #ef4444 0 calc((var(--a)+var(--b)+var(--c)+var(--d))*1%),
-                    #a78bfa 0 100%);
-            display: grid;
-            place-items: center;
-            position: relative;
-            margin: auto;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, .08);
-        }
-
-        .donut::after {
-            content: "";
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .03));
-            border: 1px solid rgba(255, 255, 255, .08);
-        }
-
-        .legend {
-            display: grid;
-            gap: 10px;
-            font-size: 13px
-        }
-
-        .legend .lg {
-            display: flex;
-            align-items: center;
-            gap: 10px
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px
-        }
-
-        .chart-card {
-            display: grid;
-            grid-template-columns: 160px 1fr;
-            gap: 14px;
-            align-items: center
-        }
-
-        /* Bar chart */
-        .bars {
-            --max: 8;
-            /* skala tertinggi */
-            display: grid;
-            align-items: end;
-            gap: 10px;
-            grid-template-columns: repeat(6, 1fr);
-            height: 160px;
-            padding: 6px 4px 0;
-            border-left: 1px dashed rgba(255, 255, 255, .1);
-            border-bottom: 1px dashed rgba(255, 255, 255, .1);
-        }
-
-        .bar {
-            display: grid;
-            align-items: end;
-            gap: 6px;
-            justify-items: center
-        }
-
-        .bar .col {
-            width: 14px;
-            border-radius: 6px 6px 0 0;
-            background: linear-gradient(180deg, #38bdf8, #2563eb);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, .35) inset;
-        }
-
-        .bar .col.alt {
-            background: linear-gradient(180deg, #34d399, #059669);
-            box-shadow: 0 6px 16px rgba(5, 150, 105, .35) inset;
-        }
-
-        .bar label {
-            font-size: 11px;
-            color: var(--muted)
-        }
-
-        /* Section headings */
-        .sect-title {
-            font-weight: 700;
-            letter-spacing: .3px;
-            margin: 0 0 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sect-title .mini {
-            color: var(--muted);
-            font-weight: 500;
-            font-size: 13px
-        }
-
-        /* Bottom Nav */
-        .bottomnav {
-            position: fixed;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 14px;
-            width: calc(100% - 24px);
-            max-width: calc(var(--maxw) - 24px);
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            padding: 10px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02));
-            backdrop-filter: blur(10px);
-            border: var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            padding-bottom: calc(10px + var(--safe));
-        }
-
-        .navbtn {
-            display: grid;
-            justify-items: center;
-            gap: 6px;
-            padding: 10px 0;
-            border-radius: 14px;
-            cursor: pointer;
-            color: #cfeafe;
-            transition: .2s ease;
-            user-select: none;
-        }
-
-        .navbtn i {
-            font-size: 18px
-        }
-
-        .navbtn span {
-            font-size: 12px
-        }
-
-        /* Active state tie to radios */
-        #tab-home:checked~.bottomnav label[for="tab-home"],
-        #tab-wallet:checked~.bottomnav label[for="tab-wallet"],
-        #tab-stats:checked~.bottomnav label[for="tab-stats"],
-        #tab-settings:checked~.bottomnav label[for="tab-settings"] {
-            background: linear-gradient(180deg, rgba(56, 189, 248, .25), rgba(37, 99, 235, .25));
-            color: #fff;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18);
-        }
-
-        /* Utilities */
-        .divider {
-            height: 1px;
-            background: rgba(255, 255, 255, .07);
-            margin: 8px 0
-        }
-
-        .hint {
-            color: var(--muted);
-            font-size: 12px
-        }
-
-        .btn-ghost {
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, .18);
-            background: rgba(255, 255, 255, .06);
-            color: #e2e8f0;
-            font-weight: 600;
-            display: inline-grid;
-            grid-auto-flow: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .center {
-            display: grid;
-            place-items: center
-        }
-
-        /* --- Revisi khusus permintaan --- */
-
-        /* 1) HOME: stack (tidak lagi bersebelahan) */
-        .home-stack {
-            display: grid;
-            gap: 16px;
-        }
-
-        /* 2) STAT: beri jarak antar box */
-        #stats .card+.card {
-            margin-top: 22px;
-        }
-
-        /* 3) SETTINGS: tombol export (visual) */
-        .btn-export {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            border: 1px solid rgba(255, 255, 255, .25);
-            padding: 14px 18px;
-            border-radius: 14px;
-            font-weight: 800;
-            box-shadow: 0 10px 24px rgba(22, 163, 74, .35);
-        }
-
-        /* Responsive */
-        @media (max-width:420px) {
-            .chart-card {
-                grid-template-columns: 1fr;
-                text-align: center
-            }
-
-            .legend {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 10px
-            }
-        }
-    </style>
+            // Prioritas: jsDelivr -> unpkg -> official SheetJS CDN
+            add("https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js", null, function () {
+                add("https://unpkg.com/xlsx@0.20.2/dist/xlsx.full.min.js", null, function () {
+                    add("https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js", null, function () {
+                        console.warn("Semua CDN SheetJS gagal dimuat.");
+                    });
+                });
+            });
+        })();
+    </script>
 </head>
 
 <body>
     <div class="app tabs">
-        <!-- Default tab = Home -->
+        <!-- NAV radios -->
         <input type="radio" id="tab-home" name="tab" checked>
         <input type="radio" id="tab-wallet" name="tab">
         <input type="radio" id="tab-stats" name="tab">
@@ -1235,8 +59,7 @@
             <div class="appbar__inner">
                 <div class="avatar">A</div>
                 <div class="hello">
-                    <small>Selamat datang,</small><br>
-                    <b>Aryo Abi Putra</b>
+                    <small>Selamat datang,</small><br><b>Aryo Abi Putra</b>
                 </div>
             </div>
         </header>
@@ -1246,83 +69,28 @@
             <section id="home" class="screen">
                 <div class="balance-card card">
                     <div class="tag">Total Saldo</div>
-                    <div class="balance-amount">Rp 12.540.000</div>
-                    <div class="subtext">Ringkasan dari 3 dompet aktif</div>
+                    <div class="balance-amount" id="totalBalance">Rp 0</div>
+                    <div class="subtext" id="summaryText">Ringkasan dari 0 dompet aktif</div>
                 </div>
 
-                <!-- STACK: saldo per dompet DI BAWAHNYA riwayat (sesuai permintaan) -->
                 <div class="home-stack">
                     <!-- Saldo per Dompet -->
                     <div class="card pad">
-                        <div class="sect-title"><i class="fa-solid fa-wallet"></i> Saldo per Dompet</div>
-                        <div class="wallet-item">
-                            <div class="wallet-left">
-                                <div class="wallet-icon"><i class="fa-solid fa-building-columns"></i></div>
-                                <div class="wallet-meta">
-                                    <b>Bank BRI</b>
-                                    <small>Utama</small>
-                                </div>
-                            </div>
-                            <div class="pill">Rp 8.200.000</div>
-                        </div>
-                        <div class="wallet-item">
-                            <div class="wallet-left">
-                                <div class="wallet-icon" style="background:linear-gradient(135deg,#34d399,#059669)"><i
-                                        class="fa-solid fa-credit-card"></i></div>
-                                <div class="wallet-meta">
-                                    <b>E-Wallet DANA</b>
-                                    <small>Belanja & Harian</small>
-                                </div>
-                            </div>
-                            <div class="pill">Rp 2.140.000</div>
-                        </div>
-                        <div class="wallet-item">
-                            <div class="wallet-left">
-                                <div class="wallet-icon" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><i
-                                        class="fa-solid fa-piggy-bank"></i></div>
-                                <div class="wallet-meta">
-                                    <b>Tabungan</b>
-                                    <small>Cadangan</small>
-                                </div>
-                            </div>
-                            <div class="pill">Rp 2.200.000</div>
-                        </div>
+                        <div class="sect-title"><i class="fa-solid fa-wallet"></i> Saldo per Dompet <span class="mini"
+                                id="walletCountHint"></span></div>
+                        <div id="homeWalletList"></div>
                     </div>
 
                     <!-- Riwayat Singkat -->
                     <div class="card pad">
-                        <div class="sect-title"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Singkat</div>
-                        <div class="tx">
-                            <div class="tx-info">
-                                <div class="ico"><i class="fa-solid fa-burger"></i></div>
-                                <div>
-                                    <div class="tx-title">Makan Siang</div>
-                                    <div class="tx-meta">Hari ini • DANA</div>
-                                </div>
-                            </div>
-                            <div class="tx-amount minus">-Rp 28.000</div>
+                        <div class="sect-title"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Singkat <span
+                                class="mini">• 10 terbaru</span></div>
+                        <div id="recentTx"></div>
+                        <div class="divider"></div>
+                        <div class="center">
+                            <button id="btnOpenTx" class="btn-ghost"><i class="fa-solid fa-plus"></i> Tambah
+                                Transaksi</button>
                         </div>
-                        <div class="tx">
-                            <div class="tx-info">
-                                <div class="ico"><i class="fa-solid fa-bus"></i></div>
-                                <div>
-                                    <div class="tx-title">Transport</div>
-                                    <div class="tx-meta">Kemarin • BRI</div>
-                                </div>
-                            </div>
-                            <div class="tx-amount minus">-Rp 12.000</div>
-                        </div>
-                        <div class="tx">
-                            <div class="tx-info">
-                                <div class="ico"><i class="fa-solid fa-money-bill-trend-up"></i></div>
-                                <div>
-                                    <div class="tx-title">Gaji</div>
-                                    <div class="tx-meta">3 hari lalu • BRI</div>
-                                </div>
-                            </div>
-                            <div class="tx-amount plus">+Rp 6.000.000</div>
-                        </div>
-                        <div class="hint">* Tampilan contoh. Data bisa kamu ganti sesuai kebutuhan.</div>
                     </div>
                 </div>
             </section>
@@ -1330,123 +98,67 @@
             <!-- WALLET -->
             <section id="wallet" class="screen">
                 <div class="card pad">
-                    <div class="sect-title">
-                        <i class="fa-solid fa-wallet"></i> Daftar Wallet
-                        <span class="mini">• Taruh semua akun kamu</span>
-                    </div>
+                    <div class="sect-title"><i class="fa-solid fa-wallet"></i> Daftar Wallet <span class="mini">• Taruh
+                            semua akun kamu</span></div>
                     <div class="divider"></div>
-
-                    <div class="wallet-item">
-                        <div class="wallet-left">
-                            <div class="wallet-icon"><i class="fa-solid fa-building-columns"></i></div>
-                            <div class="wallet-meta">
-                                <b>Bank BRI</b>
-                                <small>No. **** 1234</small>
-                            </div>
-                        </div>
-                        <div class="pill">Rp 8.200.000</div>
-                    </div>
-                    <div class="wallet-item">
-                        <div class="wallet-left">
-                            <div class="wallet-icon" style="background:linear-gradient(135deg,#34d399,#059669)"><i
-                                    class="fa-solid fa-mobile-screen"></i></div>
-                            <div class="wallet-meta">
-                                <b>DANA</b>
-                                <small>No. +62 812•••</small>
-                            </div>
-                        </div>
-                        <div class="pill">Rp 2.140.000</div>
-                    </div>
-                    <div class="wallet-item">
-                        <div class="wallet-left">
-                            <div class="wallet-icon" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><i
-                                    class="fa-solid fa-piggy-bank"></i></div>
-                            <div class="wallet-meta">
-                                <b>Tabungan</b>
-                                <small>Cadangan</small>
-                            </div>
-                        </div>
-                        <div class="pill">Rp 2.200.000</div>
-                    </div>
-
+                    <div id="walletList"></div>
                     <div class="center" style="margin-top:12px">
-                        <button class="btn-ghost"><i class="fa-solid fa-plus"></i> Tambah Wallet</button>
+                        <button id="btnOpenAdd" class="btn-ghost"><i class="fa-solid fa-plus"></i> Tambah
+                            Wallet</button>
                     </div>
+                    <div class="hint" style="margin-top:8px">Klik ikon 🗑 untuk menghapus wallet (transaksi terkait ikut
+                        dihapus).</div>
                 </div>
             </section>
 
             <!-- STATS -->
             <section id="stats" class="screen">
+                <div class="card pad">
+                    <div class="sect-title"><i class="fa-solid fa-sliders"></i> Filter Statistik</div>
+                    <div class="controls">
+                        <select id="statsWallet" class="select"></select>
+                        <div class="segmented">
+                            <button id="btnDonutExpense" class="seg active">Pengeluaran</button>
+                            <button id="btnDonutIncome" class="seg">Pemasukan</button>
+                        </div>
+                    </div>
+                    <div class="hint" style="margin-top:8px">Pilih "Semua Dompet" atau satu dompet, lalu pilih jenis
+                        donut.</div>
+                </div>
+
                 <div class="card pad chart-card">
-                    <div class="donut" title="Pengeluaran per Kategori"></div>
+                    <div id="donut" class="donut" title="Donut"></div>
                     <div>
-                        <div class="sect-title"><i class="fa-solid fa-chart-pie"></i> Pengeluaran per Kategori</div>
-                        <div class="legend">
-                            <div class="lg"><span class="dot" style="background:#60a5fa"></span> Makanan • 38%</div>
-                            <div class="lg"><span class="dot" style="background:#34d399"></span> Transport • 22%</div>
-                            <div class="lg"><span class="dot" style="background:#f59e0b"></span> Hiburan • 18%</div>
-                            <div class="lg"><span class="dot" style="background:#ef4444"></span> Tagihan • 12%</div>
-                            <div class="lg"><span class="dot" style="background:#a78bfa"></span> Lainnya • 10%</div>
-                        </div>
-                        <div class="hint" style="margin-top:8px">Ubah persentase dengan mengganti CSS variable
-                            <code>--a</code> s/d <code>--e</code> pada kelas <b>.donut</b>.
-                        </div>
+                        <div class="sect-title"><i class="fa-solid fa-chart-pie"></i> Rincian per Kategori</div>
+                        <div id="legend" class="legend"></div>
+                        <div class="divider"></div>
+                        <div class="muted" id="totalByType">Total: Rp 0</div>
                     </div>
                 </div>
 
-                <!-- Spasi antar card ditambah via CSS: #stats .card + .card{margin-top:22px} -->
                 <div class="card pad">
-                    <div class="sect-title"><i class="fa-solid fa-chart-column"></i> Pemasukan vs Pengeluaran</div>
-                    <div class="bars" style="--max: 8">
-                        <div class="bar">
-                            <div class="col alt" style="height: calc(6/var(--max)*100%)" title="Pemasukan Jan"></div>
-                            <div class="col" style="height: calc(4/var(--max)*100%)" title="Pengeluaran Jan"></div>
-                            <label>Jan</label>
-                        </div>
-                        <div class="bar">
-                            <div class="col alt" style="height: calc(5/var(--max)*100%)"></div>
-                            <div class="col" style="height: calc(3/var(--max)*100%)"></div>
-                            <label>Feb</label>
-                        </div>
-                        <div class="bar">
-                            <div class="col alt" style="height: calc(8/var(--max)*100%)"></div>
-                            <div class="col" style="height: calc(6/var(--max)*100%)"></div>
-                            <label>Mar</label>
-                        </div>
-                        <div class="bar">
-                            <div class="col alt" style="height: calc(7/var(--max)*100%)"></div>
-                            <div class="col" style="height: calc(5/var(--max)*100%)"></div>
-                            <label>Apr</label>
-                        </div>
-                        <div class="bar">
-                            <div class="col alt" style="height: calc(6/var(--max)*100%)"></div>
-                            <div class="col" style="height: calc(4/var(--max)*100%)"></div>
-                            <label>Mei</label>
-                        </div>
-                        <div class="bar">
-                            <div class="col alt" style="height: calc(6/var(--max)*100%)"></div>
-                            <div class="col" style="height: calc(5/var(--max)*100%)"></div>
-                            <label>Jun</label>
-                        </div>
-                    </div>
-                    <div class="hint" style="margin-top:8px">Sesuaikan nilai bar dengan mengubah angka pada
-                        <b>style="height: calc(n/var(--max)*100%)"</b>.
-                    </div>
+                    <div class="sect-title"><i class="fa-solid fa-chart-column"></i> Pemasukan vs Pengeluaran • 6 Bulan
+                        Terakhir</div>
+                    <div id="bars" class="bars"></div>
+                    <div class="hint" style="margin-top:8px">Hijau = pemasukan, Biru = pengeluaran. Dibuat berdampingan
+                        untuk mudah dibandingkan.</div>
                 </div>
             </section>
 
             <!-- SETTINGS -->
             <section id="settings" class="screen">
                 <div class="card pad center" style="padding:24px">
-                    <div class="sect-title" style="justify-content:center">
-                        <i class="fa-solid fa-file-excel"></i> Export Data
+                    <div class="sect-title" style="justify-content:center"><i class="fa-solid fa-list"></i> Kategori &
+                        Export</div>
+                    <div class="center" style="gap:10px">
+                        <button id="btnOpenCats" class="btn-ghost"><i class="fa-solid fa-tags"></i> Kelola
+                            Kategori</button>
+                        <button id="btnExportXlsx" class="btn-ghost"
+                            style="background:linear-gradient(135deg,#22c55e,#16a34a); box-shadow:0 10px 24px rgba(22,163,74,.35)">
+                            <i class="fa-solid fa-download"></i> Export ke Excel
+                        </button>
                     </div>
-                    <button class="btn-ghost btn-export">
-                        <i class="fa-solid fa-download"></i>
-                        Export ke Excel
-                    </button>
-                    <div class="hint" style="margin-top:10px">* Tombol tampilan (HTML+CSS saja). Fungsinya bisa
-                        ditambahkan nanti dengan JavaScript.</div>
+                    <div class="hint" style="margin-top:10px">Export memakai SheetJS (client-side).</div>
                 </div>
             </section>
         </main>
@@ -1459,7 +171,81 @@
             <label class="navbtn" for="tab-settings"><i class="fa-solid fa-gear"></i><span>Setting</span></label>
         </nav>
     </div>
+
+    <!-- MODALS -->
+    <div class="modal" id="modalAddWallet">
+        <div class="modal-card">
+            <div class="sect-title"><i class="fa-solid fa-plus"></i> Tambah Wallet</div>
+            <div class="form-row">
+                <input id="inWName" class="input" type="text" placeholder="Nama Wallet (contoh: Bank BRI)" />
+                <input id="inWNote" class="input" type="text" placeholder="Catatan/Label (contoh: Utama / Belanja)" />
+                <input id="inWBalance" class="input" type="number" inputmode="numeric"
+                    placeholder="Saldo awal (contoh: 1500000)" />
+                <select id="inWTheme" class="select">
+                    <option value="blue|fa-building-columns" selected>Bank • Biru</option>
+                    <option value="green|fa-mobile-screen">E-Wallet • Hijau</option>
+                    <option value="amber|fa-piggy-bank">Tabungan • Oranye</option>
+                </select>
+            </div>
+            <div class="form-row" style="justify-items:end">
+                <button data-close="#modalAddWallet" class="btn-secondary">Batal</button>
+                <button id="btnDoAddWallet" class="btn-primary">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalTx">
+        <div class="modal-card">
+            <div class="sect-title"><i class="fa-solid fa-plus"></i> <span id="txModalTitle">Tambah Transaksi</span>
+            </div>
+            <div class="form-row">
+                <div style="display:grid; grid-auto-flow:column; gap:8px; justify-content:start">
+                    <span id="tagIn" class="tagtype tag-in" data-type="in">Pemasukan</span>
+                    <span id="tagOut" class="tagtype tag-out" data-type="out">Pengeluaran</span>
+                </div>
+                <input id="inAmount" class="input" type="number" inputmode="numeric"
+                    placeholder="Nominal (contoh: 125000)" />
+                <select id="inWallet" class="select"></select>
+                <select id="inCategory" class="select"></select>
+                <input id="inNoteTx" class="input" type="text" placeholder="Catatan (opsional)" />
+                <input id="inDate" class="date" type="date" />
+                <div class="hint" id="catHint" style="display:none">Belum ada kategori untuk tipe ini. Tambahkan di
+                    <b>Setting → Kelola Kategori</b>.
+                </div>
+            </div>
+            <div class="form-row" style="grid-auto-flow:column; justify-content:space-between">
+                <button id="btnDeleteTx" class="btn-danger" style="display:none"><i class="fa-solid fa-trash-can"></i>
+                    Hapus</button>
+                <div style="display:grid; grid-auto-flow:column; gap:10px; justify-content:end">
+                    <button data-close="#modalTx" class="btn-secondary">Batal</button>
+                    <button id="btnDoSaveTx" class="btn-primary">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalCats">
+        <div class="modal-card">
+            <div class="sect-title"><i class="fa-solid fa-tags"></i> Kelola Kategori</div>
+            <div class="form-row">
+                <select id="catType" class="select">
+                    <option value="income">Pemasukan</option>
+                    <option value="expense">Pengeluaran</option>
+                </select>
+                <div style="display:grid; grid-auto-flow:column; gap:8px; align-items:center">
+                    <input id="catName" class="input" type="text" placeholder="Nama kategori (mis. Gaji / Makan)" />
+                    <button id="btnAddCat" class="btn-primary">Tambah</button>
+                </div>
+                <div id="catList"></div>
+            </div>
+            <div class="form-row" style="justify-items:end">
+                <button data-close="#modalCats" class="btn-secondary">Selesai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App -->
+    <script src="app.js"></script>
 </body>
 
 </html>
->>>>>>> 774e417500f7041ab051ef1fbb7ca26e2fa08230
