@@ -841,44 +841,74 @@ function isValidBackup(json) {
     Array.isArray(json.txs)
   );
 }
-async function handleRestoreJSONFile(file) {
+async function handleRestoreJSONFile(file){
   if (!file) return;
-  try {
+  try{
     const text = await file.text();
     const data = JSON.parse(text);
-    if (!isValidBackup(data)) {
-      alert("File cadangan tidak valid.");
-      return;
-    }
-    if (
-      !confirm(
-        "Pulihkan data dari cadangan? Ini akan MENIMPA data lokal saat ini."
-      )
-    )
-      return;
+    if (!isValidBackup(data)) { alert('File cadangan tidak valid.'); return; }
 
-    if (typeof data.displayName === "string" && data.displayName.trim()) {
-      displayName = data.displayName.trim().replace(/^"(.*)"$/, "$1");
+    const ok = confirm(
+      'Pulihkan data dari cadangan?\n\n' +
+      'Catatan:\n' +
+      '- Data AKAN DIGABUNGKAN (merge), bukan ditimpa.\n' +
+      '- Wallet & transaksi baru TETAP DIPERTAHANKAN.\n' +
+      '- Transaksi dari cadangan yang belum ada akan ditambahkan.'
+    );
+    if (!ok) return;
+
+    // 1) Display name: pakai milik sekarang, kecuali masih "User" dan backup punya nama
+    if ((!displayName || displayName === 'User') &&
+        typeof data.displayName === 'string' && data.displayName.trim()){
+      displayName = data.displayName.trim().replace(/^"(.*)"$/, '$1');
       localStorage.setItem(LS_NAME, displayName);
     }
-    wallets = Array.isArray(data.wallets) ? data.wallets : [];
-    cats = data.cats || { income: [], expense: [] };
-    txs = Array.isArray(data.txs) ? data.txs : [];
 
+    // 2) Wallets: tambah yang belum ada (ID unik); tidak menimpa wallet yang sudah ada
+    const backupWallets = Array.isArray(data.wallets) ? data.wallets : [];
+    const currentWIds = new Set(wallets.map(w => w.id));
+    const toAddWallets = backupWallets.filter(w => w && w.id && !currentWIds.has(w.id));
+    if (toAddWallets.length) wallets = wallets.concat(toAddWallets);
+
+    // 3) Categories: gabung unik
+    const incSet = new Set([...(cats.income || []), ...(((data.cats || {}).income) || [])]);
+    const expSet = new Set([...(cats.expense || []), ...(((data.cats || {}).expense) || [])]);
+    cats = { income: Array.from(incSet), expense: Array.from(expSet) };
+
+    // 4) Transactions: tambah yang belum ada (ID unik), lalu apply efek ke saldo dompet
+    const backupTxs = Array.isArray(data.txs) ? data.txs : [];
+    const currentTxIds = new Set(txs.map(t => t.id));
+    const newTxs = [];
+    for (const t of backupTxs){
+      if (!t || !t.id) continue;
+      if (!currentTxIds.has(t.id)){
+        // Pastikan wallet rujukan ada: jika wallet ada di backup tapi belum di-append, sudah ditangani di step 2
+        txs.push(t);
+        newTxs.push(t);
+        applyTxEffect(t); // hanya mempengaruhi 'in' & 'out'; 'debt' diabaikan oleh fungsi ini
+      }
+    }
+
+    // 5) Simpan & render
     save(LS_WALLETS, wallets);
     save(LS_CATS, cats);
     save(LS_TX, txs);
+
     renderAll();
-    alert("Pemulihan berhasil. Data telah dimuat.");
-    $("#tab-home").checked = true;
-    onTabChange();
-  } catch (e) {
-    console.error(e);
     alert(
-      "Gagal memulihkan. Pastikan file .json asli dari cadangan aplikasi ini."
+      'Pemulihan selesai (merge).\n' +
+      `Wallet baru ditambahkan: ${toAddWallets.length}\n` +
+      `Transaksi baru digabungkan: ${newTxs.length}`
     );
+
+    $('#tab-home').checked = true;
+    onTabChange();
+  }catch(e){
+    console.error(e);
+    alert('Gagal memulihkan. Pastikan file .json asli dari cadangan aplikasi ini.');
   }
 }
+
 
 /* ===== Smooth UX: screen activation + stagger ===== */
 function animateCurrentScreen() {
