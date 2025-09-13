@@ -72,10 +72,10 @@ FinNote adalah aplikasi web pencatat keuangan sederhana dengan tampilan modern. 
 ---
 
 ## 📷 Preview
-<img width="422" height="817" alt="image" src="https://github.com/user-attachments/assets/09827a4e-d4af-4c4a-8f66-0285b236aeaf" />
-<img width="426" height="820" alt="image" src="https://github.com/user-attachments/assets/be024fb2-a08a-4811-a8c4-bf4cfce96a32" />
-<img width="422" height="819" alt="image" src="https://github.com/user-attachments/assets/7c14b8d6-4999-48f8-9c8c-c9a326a1fecd" />
-<img width="431" height="820" alt="image" src="https://github.com/user-attachments/assets/ed6bef7b-7f95-4832-8cd3-4705b8b3b15c" />
+<img width="211" height="408,5" alt="image" src="https://github.com/user-attachments/assets/09827a4e-d4af-4c4a-8f66-0285b236aeaf" />
+<img width="213" height="410" alt="image" src="https://github.com/user-attachments/assets/be024fb2-a08a-4811-a8c4-bf4cfce96a32" />
+<img width="211" height="409,5" alt="image" src="https://github.com/user-attachments/assets/7c14b8d6-4999-48f8-9c8c-c9a326a1fecd" />
+<img width="215,45" height="410" alt="image" src="https://github.com/user-attachments/assets/ed6bef7b-7f95-4832-8cd3-4705b8b3b15c" />
 
 
 
