@@ -889,5 +889,59 @@ main {
   );
   border: 1px solid rgba(255,255,255,.20); /* garis tepi; kecilkan untuk makin halus */
 }
+/* Jarak kecil antara baris filter dan pilihan periode */
+#statsRangeSeg{ margin-top:8px }
+/* ====== FIX WRAP DI LIST WALLET ====== */
+#walletList .wallet-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:nowrap;         /* cegah pindah baris */
+}
+
+#walletList .wallet-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex:1 1 auto;            /* sisi kiri fleksibel */
+  min-width:0;              /* penting agar ellipsis bisa jalan */
+}
+
+#walletList .wallet-icon{   /* ikon jangan ikut mengecil */
+  flex:0 0 auto;
+}
+
+#walletList .wallet-meta{
+  min-width:0;              /* izinkan potong teks */
+}
+
+#walletList .wallet-meta b,
+#walletList .wallet-meta small{
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;   /* potong dengan … */
+}
+
+#walletList .wallet-actions{
+  margin-left:auto;         /* dorong ke kanan */
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:0 0 auto;            /* lebar tetap, tidak ikut compress */
+  white-space:nowrap;       /* tombol & pill tidak pindah baris */
+}
+
+#walletList .wallet-actions .pill{
+  max-width:46vw;           /* biar angka panjang tidak dorong tombol */
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* (opsional) layar sempit: sembunyikan pill kalau benar-benar mepet */
+@media (max-width:380px){
+  #walletList .wallet-actions .pill{ display:none; }
+}
 
 

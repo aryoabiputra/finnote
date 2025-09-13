@@ -182,6 +182,7 @@
             <div class="sect-title">
               <i class="fa-solid fa-sliders"></i> Filter Statistik
             </div>
+
             <div class="controls">
               <select id="statsWallet" class="select"></select>
               <div class="segmented">
@@ -191,8 +192,19 @@
                 <button id="btnDonutIncome" class="seg">Pemasukan</button>
               </div>
             </div>
-            <div class="hint" style="margin-top: 8px">
-              Pilih "Semua Dompet" atau satu dompet, lalu pilih jenis transaksi.
+
+            <!-- Switch periode: Bulanan / Tahunan -->
+            <div class="segmented" id="periodSwitch" style="margin-top: 8px">
+              <button
+                class="seg active"
+                id="periodMonthly"
+                title="Lihat per bulan"
+              >
+                Bulanan
+              </button>
+              <button class="seg" id="periodYearly" title="Lihat per tahun">
+                Tahunan
+              </button>
             </div>
           </div>
 
@@ -211,7 +223,8 @@
           <div class="card pad">
             <div class="sect-title">
               <i class="fa-solid fa-chart-column"></i> Pemasukan vs Pengeluaran
-              • 6 Bulan Terakhir
+              <!-- (opsional) tambahkan label mini kalau mau kamu update via JS nanti -->
+              <!-- <span class="mini" id="barsPeriodLabel">• Bulanan</span> -->
             </div>
             <div id="bars" class="bars"></div>
             <div class="hint" style="margin-top: 8px">
@@ -274,7 +287,8 @@
             />
             <div class="hint" style="margin-top: 10px">
               Cadangkan akan <b>menyimpan seluruh data</b> ke file .json.
-              Pulihkan akan menggabungkan cadangan dengan data saat ini. Dijamin datamu aman.
+              Pulihkan akan menggabungkan cadangan dengan data saat ini. Dijamin
+              datamu aman.
             </div>
           </div>
           <!-- Versi app -->
