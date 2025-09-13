@@ -72,8 +72,8 @@
           </div>
 
           <!-- Ringkasan Hutang -->
-          <div class="card pad" id="debtCard">
-            <div class="sect-title"><i class="fa-solid fa-hand-holding-dollar"></i> Total Hutang</div>
+          <div class="card pad" id="debtCard" style="cursor:pointer">
+            <div class="sect-title"><i class="fa-solid fa-hand-holding-dollar"></i>Hutang</div>
             <div class="debt-summary">
               <div>
                 <div class="muted">Jumlah</div>
@@ -87,6 +87,14 @@
           <!-- Riwayat -->
           <div class="card pad">
             <div class="sect-title"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Transaksi</div>
+            <!-- Filter Riwayat -->
+<div class="history-filters">
+  <button class="pill-filter" id="hfAll">Semua</button>
+  <button class="pill-filter" id="hfIn">Pemasukan</button>
+  <button class="pill-filter" id="hfOut">Pengeluaran</button>
+  <button class="pill-filter" id="hfDebt">Hutang</button>
+</div>
+
             <div id="recentTx"></div>
             <div class="divider"></div>
             <div class="center">
@@ -158,36 +166,34 @@
 
         <div class="card pad">
           <div class="sect-title"><i class="fa-solid fa-list"></i> Kategori & Pencadangan</div>
-          <div class="center" style="gap:10px; grid-auto-flow:row">
-            <div class="center" style="gap:10px">
-              <button id="btnOpenCats" class="btn-ghost">
-                <i class="fa-solid fa-tags"></i> Kelola Kategori
-              </button>
-              <button id="btnExportXlsx" class="btn-ghost"
-                style="background:linear-gradient(135deg,#22c55e,#16a34a); box-shadow:0 10px 24px rgba(22,163,74,.35)">
-                <i class="fa-solid fa-download"></i> Export ke Excel
-              </button>
-            </div>
 
-            <!-- Tombol Backup & Restore JSON -->
-            <div class="center" style="gap:10px">
-              <button id="btnBackupJSON" class="btn-ghost">
-                <i class="fa-solid fa-database"></i> Cadangkan (.json)
-              </button>
+          <!-- Aksi ditata jadi grid responsif -->
+          <div class="settings-actions">
+            <button id="btnOpenCats" class="btn-ghost btn-eq">
+              <i class="fa-solid fa-tags"></i> Kelola Kategori
+            </button>
 
-              <!-- Gunakan label agar tampak seperti tombol -->
-              <label for="fileRestoreJSON" class="btn-ghost" style="cursor:pointer">
-                <i class="fa-solid fa-upload"></i> Pulihkan
-              </label>
-              <input type="file" id="fileRestoreJSON" accept="application/json" hidden>
-            </div>
+            <button id="btnExportXlsx" class="btn-ghost btn-eq btn-success">
+              <i class="fa-solid fa-download"></i> Export ke Excel
+            </button>
+
+            <button id="btnBackupJSON" class="btn-ghost btn-eq">
+              <i class="fa-solid fa-database"></i> Cadangkan (.json)
+            </button>
+
+            <label for="fileRestoreJSON" class="btn-ghost btn-eq" style="cursor:pointer">
+              <i class="fa-solid fa-upload"></i> Pulihkan
+            </label>
           </div>
 
+          <input type="file" id="fileRestoreJSON" accept="application/json" hidden>
+
           <div class="hint" style="margin-top:10px">
-            Cadangkan akan menyimpan <b>dompet, kategori, transaksi, dan nama tampilan</b> ke file .json.<br>
+            Cadangkan menyimpan <b>dompet, kategori, transaksi, nama tampilan</b> ke file .json.
             Pulihkan akan <b>menimpa data lokal</b> dengan isi file cadangan.
           </div>
         </div>
+
 
       </section>
     </main>

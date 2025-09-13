@@ -42,6 +42,7 @@ let txType = 'out',
   editingTxId = null;
 let statsWalletId = 'all',
   statsDonutType = 'expense';
+let historyFilter = null; // null|'in'|'out'|'debt'
 
 /* ===== Reveal-on-scroll Observer (dipakai ulang) ===== */
 let _io = null;
@@ -87,8 +88,10 @@ function walletItemHTML(w) {
     </div>
   </div>`;
 }
+
+/* Saldo per dompet di HOME — seluruh kartu bisa diklik */
 function walletItemHomeHTML(w) {
-  return `<div class="wallet-item">
+  return `<div class="wallet-item wallet-item-home" data-id="${w.id}" style="cursor:pointer">
     <div class="wallet-left">
       <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(w.icon)}"></i></div>
       <div class="wallet-meta"><b>${w.name}</b><small>${w.note || ''}</small></div>
@@ -96,6 +99,7 @@ function walletItemHomeHTML(w) {
     <div class="pill">${fmtIDR(w.balance)}</div>
   </div>`;
 }
+
 function renderWallets() {
   const list = $('#walletList');
   const home = $('#homeWalletList');
@@ -108,6 +112,7 @@ function renderWallets() {
   }
   fillStatsWalletSelect();
 }
+
 /* Debt summary (hutang = tx.type === 'debt') */
 function renderDebtSummary() {
   const debts = txs.filter((t) => t.type === 'debt');
@@ -145,8 +150,20 @@ function renderRecentTx() {
     wrap.innerHTML = `<div class="hint">Belum ada transaksi.</div>`;
     return;
   }
-  const latest = [...txs].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-  wrap.innerHTML = latest.map(recentTxItemHTML).join('');
+
+  // Terapkan filter
+  let list = [...txs];
+  if (historyFilter === 'in') list = list.filter((t) => t.type === 'in');
+  if (historyFilter === 'out') list = list.filter((t) => t.type === 'out');
+  if (historyFilter === 'debt') list = list.filter((t) => t.type === 'debt');
+
+  // Urutkan terbaru; jika ada filter tampilkan semua, jika tidak batasi 10
+  const sorted = list.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const limited = historyFilter ? sorted : sorted.slice(0, 10);
+
+  // Hasil akhir
+  const html = limited.map(recentTxItemHTML).join('');
+  wrap.innerHTML = html || `<div class="hint">Tidak ada transaksi sesuai filter.</div>`;
 }
 
 function renderAll() {
@@ -478,9 +495,9 @@ function renderDonut() {
   legend.innerHTML = segs
     .map(
       (s) =>
-        `<div class="lg"><div class="left"><span class="dot" style="background:${s.color}"></span> ${s.name}</div><div>${fmtIDR(
-          s.val
-        )} • ${s.pct.toFixed(1)}%</div></div>`
+        `<div class="lg"><div class="left"><span class="dot" style="background:${s.color}"></span> ${
+          s.name
+        }</div><div>${fmtIDR(s.val)} • ${s.pct.toFixed(1)}%</div></div>`
     )
     .join('');
   lblTotal.textContent = `Total: ${fmtIDR(total)}`;
@@ -579,36 +596,34 @@ function makeBackupPayload() {
     txs
   };
 }
-
 function downloadJSON(obj, filename) {
   const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = filename;
+  a.href = url;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
 }
-
 function handleBackupJSON() {
   const payload = makeBackupPayload();
   const ts = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16);
   downloadJSON(payload, `FinNote-Backup-${ts}.json`);
   alert('Cadangan berhasil dibuat.');
 }
-
 function isValidBackup(json) {
   if (!json) return false;
-  // Minimal field check
   return (
-    (json.app === 'FinNote' || typeof json.app === 'undefined') && // toleran
+    (json.app === 'FinNote' || typeof json.app === 'undefined') &&
     Array.isArray(json.wallets) &&
-    json.cats && Array.isArray(json.cats.income || []) && Array.isArray(json.cats.expense || []) &&
+    json.cats &&
+    Array.isArray(json.cats.income || []) &&
+    Array.isArray(json.cats.expense || []) &&
     Array.isArray(json.txs)
   );
 }
-
 async function handleRestoreJSONFile(file) {
   if (!file) return;
   try {
@@ -624,10 +639,9 @@ async function handleRestoreJSONFile(file) {
 
     // Simpan ke localStorage
     if (typeof data.displayName === 'string' && data.displayName.trim()) {
-  // pastikan tanpa tanda kutip
-  displayName = data.displayName.trim().replace(/^"(.*)"$/, '$1');
-  localStorage.setItem(LS_NAME, displayName);
-}
+      displayName = data.displayName.trim().replace(/^"(.*)"$/, '$1'); // hilangkan kutip jika ada
+      localStorage.setItem(LS_NAME, displayName);
+    }
 
     wallets = Array.isArray(data.wallets) ? data.wallets : [];
     cats = data.cats || { income: [], expense: [] };
@@ -647,7 +661,6 @@ async function handleRestoreJSONFile(file) {
     alert('Gagal memulihkan. Pastikan file .json asli dari cadangan aplikasi ini.');
   }
 }
-
 
 /* ===== Smooth UX: screen activation + stagger (blur + slide) ===== */
 function animateCurrentScreen() {
@@ -802,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const io = ensureObserver();
   $$('.screen .card').forEach((c) => io.observe(c));
 
-    // Backup & Restore JSON
+  // Backup & Restore JSON
   $('#btnBackupJSON')?.addEventListener('click', handleBackupJSON);
   $('#fileRestoreJSON')?.addEventListener('change', (e) => {
     const f = e.target.files?.[0];
@@ -810,4 +823,70 @@ document.addEventListener('DOMContentLoaded', () => {
     e.target.value = ''; // reset input supaya bisa pilih file sama lagi
   });
 
+  // Klik "Total Hutang" => tampilkan hanya transaksi hutang di Riwayat (Home)
+  $('#debtCard')?.addEventListener('click', () => {
+    historyFilter = 'debt';
+    // Pastikan tab Home aktif
+    $('#tab-home')?.click?.();
+    renderRecentTx();
+    // Scroll halus ke blok Riwayat
+    document.getElementById('recentTx')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateHistoryFilterUI();
+  });
+
+  // === Filter Riwayat (UI state) ===
+  function updateHistoryFilterUI() {
+    ['hfAll', 'hfIn', 'hfOut', 'hfDebt'].forEach((id) => $(`#${id}`)?.classList.remove('active'));
+    if (!historyFilter) $('#hfAll')?.classList.add('active');
+    if (historyFilter === 'in') $('#hfIn')?.classList.add('active');
+    if (historyFilter === 'out') $('#hfOut')?.classList.add('active');
+    if (historyFilter === 'debt') $('#hfDebt')?.classList.add('active');
+  }
+  $('#hfAll')?.addEventListener('click', () => {
+    historyFilter = null;
+    updateHistoryFilterUI();
+    renderRecentTx();
+  });
+  $('#hfIn')?.addEventListener('click', () => {
+    historyFilter = 'in';
+    updateHistoryFilterUI();
+    renderRecentTx();
+  });
+  $('#hfOut')?.addEventListener('click', () => {
+    historyFilter = 'out';
+    updateHistoryFilterUI();
+    renderRecentTx();
+  });
+  $('#hfDebt')?.addEventListener('click', () => {
+    historyFilter = 'debt';
+    updateHistoryFilterUI();
+    renderRecentTx();
+  });
+  updateHistoryFilterUI();
+
+  // === HOME: klik kartu saldo dompet (seluruh card) => pindah ke tab Wallet + sorot item ===
+  $('#homeWalletList')?.addEventListener('click', (e) => {
+    const row = e.target.closest('.wallet-item-home');
+    if (!row) return;
+
+    const targetId = row.getAttribute('data-id');
+
+    // Pindah ke tab Wallet
+    const tab = $('#tab-wallet');
+    if (tab) {
+      tab.checked = true;
+      onTabChange?.();
+    }
+    document.getElementById('wallet')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Scroll & highlight dompet yang sama di daftar Wallet (UX)
+    setTimeout(() => {
+      const el = document.querySelector(`#walletList .wallet-item[data-id="${targetId}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('flash');
+        setTimeout(() => el.classList.remove('flash'), 1000);
+      }
+    }, 60);
+  });
 });
