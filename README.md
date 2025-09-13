@@ -1,6 +1,6 @@
 # FinNote — Aplikasi Pencatat Keuangan Pribadi
 
-FinNote adalah aplikasi web pencatat keuangan sederhana dengan tampilan modern yang terinspirasi dari aplikasi dompet digital seperti **DANA**. Dibuat menggunakan **HTML, CSS, dan JavaScript**, aplikasi ini membantu kamu mengelola dompet, mencatat transaksi, dan menganalisis pemasukan serta pengeluaran dengan mudah dan cepat.
+FinNote adalah aplikasi web pencatat keuangan sederhana dengan tampilan modern. Dibuat menggunakan **HTML, CSS, dan JavaScript**. Aplikasi ini membantu kamu mengelola dompet, mencatat transaksi, dan menganalisis pemasukan serta pengeluaran dengan mudah dan cepat. Aplikasi web ini dibuat karena keresahan pribadi saat menggunakan aplikasi budgeting populer, namun punya banyak batasan dari segi fitur seperti pencadangan, ekspor dan impor data jika menggunakan akun gratis. Karena itu kemudian web ini dibuat agar user bisa menggunakan fitur - fitur premium tersebut secara gratis.  
 
 ---
 
