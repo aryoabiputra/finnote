@@ -72,7 +72,8 @@ FinNote adalah aplikasi web pencatat keuangan sederhana dengan tampilan modern. 
 ---
 
 ## 📷 Preview
-(Tambahkan screenshot/gif aplikasi di sini)  
+<img width="449" height="871" alt="image" src="https://github.com/user-attachments/assets/d2111445-f14d-44a8-9d60-ae9ee78ce562" />
+
 
 ---
 
