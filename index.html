@@ -1,316 +1,436 @@
 <!DOCTYPE html>
 <html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FinNote — DANA-like (HTML+CSS+JS)</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FinNote — DANA-like (HTML+CSS+JS)</title>
+    <!-- Fonts & Icons -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
 
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css" />
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css">
+    <!-- SheetJS loader (untuk Export Excel) -->
+    <script>
+      (function loadSheetJS() {
+        if (window.XLSX) {
+          window.__XLSX_READY__ = true;
+          return;
+        }
+        function add(src, onload, onerror) {
+          var s = document.createElement("script");
+          s.src = src;
+          s.defer = true;
+          s.onload = function () {
+            window.__XLSX_READY__ = true;
+            onload && onload();
+          };
+          s.onerror = function () {
+            onerror && onerror();
+          };
+          document.head.appendChild(s);
+        }
+        add(
+          "https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js",
+          null,
+          function () {
+            add(
+              "https://unpkg.com/xlsx@0.20.2/dist/xlsx.full.min.js",
+              null,
+              function () {
+                add(
+                  "https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"
+                );
+              }
+            );
+          }
+        );
+      })();
+    </script>
+  </head>
 
-  <!-- SheetJS loader (untuk Export Excel) -->
-  <script>
-    (function loadSheetJS() {
-      if (window.XLSX) { window.__XLSX_READY__ = true; return; }
-      function add(src, onload, onerror) {
-        var s = document.createElement("script");
-        s.src = src; s.defer = true;
-        s.onload = function () { window.__XLSX_READY__ = true; onload && onload(); };
-        s.onerror = function () { onerror && onerror(); };
-        document.head.appendChild(s);
-      }
-      add("https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js", null, function () {
-        add("https://unpkg.com/xlsx@0.20.2/dist/xlsx.full.min.js", null, function () {
-          add("https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js");
-        });
-      });
-    })();
-  </script>
-</head>
+  <body>
+    <div class="app tabs">
+      <!-- NAV radios -->
+      <input type="radio" id="tab-home" name="tab" checked />
+      <input type="radio" id="tab-wallet" name="tab" />
+      <input type="radio" id="tab-stats" name="tab" />
+      <input type="radio" id="tab-settings" name="tab" />
 
-<body>
-  <div class="app tabs">
-    <!-- NAV radios -->
-    <input type="radio" id="tab-home" name="tab" checked>
-    <input type="radio" id="tab-wallet" name="tab">
-    <input type="radio" id="tab-stats" name="tab">
-    <input type="radio" id="tab-settings" name="tab">
-
-    <!-- Appbar -->
-    <header class="appbar">
-      <div class="appbar__inner">
-        <div class="avatar" id="avatarCircle">A</div>
-        <div class="hello" id="helloBlock" title="Klik untuk ubah nama">
-          <small>Selamat datang</small><br>
-          <b id="displayName">User</b>
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <!-- ================= HOME ================= -->
-      <section id="home" class="screen">
-        <!-- Total Saldo -->
-        <div class="balance-card card">
-          <div class="tag">Total Saldo</div>
-
-          <!-- ROW: nominal + tombol mata di kanan -->
-          <div class="balance-row">
-            <div class="balance-amount" id="totalBalance">Rp 0</div>
-            <button id="toggleTotal" class="eye-btn eye-btn-lg" title="Sembunyikan/lihat saldo">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+      <!-- Appbar -->
+      <header class="appbar">
+        <div class="appbar__inner">
+          <div class="avatar" id="avatarCircle">A</div>
+          <div class="hello" id="helloBlock" title="Klik untuk ubah nama">
+            <small>Selamat datang</small><br />
+            <b id="displayName">User</b>
           </div>
-
-          <div class="subtext" id="summaryText">Ringkasan dari 0 dompet aktif</div>
         </div>
+      </header>
 
+      <main>
+        <!-- ================= HOME ================= -->
+        <section id="home" class="screen">
+          <!-- Total Saldo -->
+          <div class="balance-card card">
+            <div class="tag">Total Saldo</div>
 
-        <div class="home-stack">
-          <!-- Saldo per Dompet -->
-          <div class="card pad">
-            <div class="sect-title">
-              <i class="fa-solid fa-wallet"></i> Saldo
-              <span class="mini" id="walletCountHint"></span>
-              <button id="toggleWallets" class="eye-btn" title="Sembunyikan/lihat saldo dompet">
+            <!-- ROW: nominal + tombol mata di kanan -->
+            <div class="balance-row">
+              <div class="balance-amount" id="totalBalance">Rp 0</div>
+              <button
+                id="toggleTotal"
+                class="eye-btn eye-btn-lg"
+                title="Sembunyikan/lihat saldo"
+              >
                 <i class="fa-solid fa-eye"></i>
               </button>
             </div>
-            <div id="homeWalletList"></div>
+
+            <div class="subtext" id="summaryText">
+              Ringkasan dari 0 dompet aktif
+            </div>
           </div>
 
-          <!-- Ringkasan Hutang -->
-          <div class="card pad" id="debtCard" style="cursor:pointer">
-            <div class="sect-title">
-              <i class="fa-solid fa-hand-holding-dollar"></i> Hutang
-              <button id="toggleDebt" class="eye-btn" title="Sembunyikan/lihat total hutang">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-            </div>
-            <div class="debt-summary">
-              <div>
-                <div class="muted">Jumlah</div>
-                <div id="debtTotal" class="debt-amount">Rp 0</div>
+          <div class="home-stack">
+            <!-- Saldo per Dompet -->
+            <div class="card pad">
+              <div class="sect-title">
+                <i class="fa-solid fa-wallet"></i> Saldo
+                <span class="mini" id="walletCountHint"></span>
+                <button
+                  id="toggleWallets"
+                  class="eye-btn"
+                  title="Sembunyikan/lihat saldo dompet"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                </button>
               </div>
-              <div class="pill" id="debtCountPill">0 transaksi</div>
+              <div id="homeWalletList"></div>
             </div>
-            <div class="hint" style="margin-top:8px">Jangan lupa bayar hutang hey!</div>
-          </div>
 
-          <!-- Riwayat -->
+            <!-- Ringkasan Hutang -->
+            <div class="card pad" id="debtCard" style="cursor: pointer">
+              <div class="sect-title">
+                <i class="fa-solid fa-hand-holding-dollar"></i> Hutang
+                <button
+                  id="toggleDebt"
+                  class="eye-btn"
+                  title="Sembunyikan/lihat total hutang"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              <div class="debt-summary">
+                <div>
+                  <div class="muted">Jumlah</div>
+                  <div id="debtTotal" class="debt-amount">Rp 0</div>
+                </div>
+                <div class="pill" id="debtCountPill">0 transaksi</div>
+              </div>
+              <div class="hint" style="margin-top: 8px">
+                Jangan lupa bayar hutang hey!
+              </div>
+            </div>
+
+            <!-- Riwayat -->
+            <div class="card pad">
+              <div class="sect-title">
+                <i class="fa-solid fa-clock-rotate-left"></i> Riwayat Transaksi
+              </div>
+              <div class="history-filters">
+                <button class="pill-filter" id="hfAll">Semua</button>
+                <button class="pill-filter" id="hfIn">Pemasukan</button>
+                <button class="pill-filter" id="hfOut">Pengeluaran</button>
+                <button class="pill-filter" id="hfDebt">Hutang</button>
+              </div>
+              <div id="recentTx"></div>
+              <div class="divider"></div>
+            </div>
+          </div>
+        </section>
+        <!-- /#home -->
+
+        <!-- ================= WALLET ================= -->
+        <section id="wallet" class="screen">
           <div class="card pad">
-            <div class="sect-title"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Transaksi</div>
-            <div class="history-filters">
-              <button class="pill-filter" id="hfAll">Semua</button>
-              <button class="pill-filter" id="hfIn">Pemasukan</button>
-              <button class="pill-filter" id="hfOut">Pengeluaran</button>
-              <button class="pill-filter" id="hfDebt">Hutang</button>
+            <div class="sect-title">
+              <i class="fa-solid fa-wallet"></i> Daftar Wallet
+              <span class="mini">• Taruh semua akun kamu</span>
             </div>
-            <div id="recentTx"></div>
             <div class="divider"></div>
-          </div>
-        </div>
-      </section> <!-- /#home -->
-
-      <!-- ================= WALLET ================= -->
-      <section id="wallet" class="screen">
-        <div class="card pad">
-          <div class="sect-title"><i class="fa-solid fa-wallet"></i> Daftar Wallet <span class="mini">• Taruh semua akun
-              kamu</span></div>
-          <div class="divider"></div>
-          <div id="walletList"></div>
-          <div class="center" style="margin-top:12px">
-           
-          </div>
-          <div class="hint" style="margin-top:8px">Klik ikon 🗑 untuk menghapus wallet (transaksi terkait ikut dihapus).
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= STATS ================= -->
-      <section id="stats" class="screen">
-        <div class="card pad">
-          <div class="sect-title"><i class="fa-solid fa-sliders"></i> Filter Statistik</div>
-          <div class="controls">
-            <select id="statsWallet" class="select"></select>
-            <div class="segmented">
-              <button id="btnDonutExpense" class="seg active">Pengeluaran</button>
-              <button id="btnDonutIncome" class="seg">Pemasukan</button>
+            <div id="walletList"></div>
+            <div class="center" style="margin-top: 12px"></div>
+            <div class="hint" style="margin-top: 8px">
+              Klik ikon 🗑 untuk menghapus wallet (transaksi terkait ikut
+              dihapus).
             </div>
           </div>
-          <div class="hint" style="margin-top:8px">Pilih "Semua Dompet" atau satu dompet, lalu pilih jenis transaksi.
+        </section>
+
+        <!-- ================= STATS ================= -->
+        <section id="stats" class="screen">
+          <div class="card pad">
+            <div class="sect-title">
+              <i class="fa-solid fa-sliders"></i> Filter Statistik
+            </div>
+            <div class="controls">
+              <select id="statsWallet" class="select"></select>
+              <div class="segmented">
+                <button id="btnDonutExpense" class="seg active">
+                  Pengeluaran
+                </button>
+                <button id="btnDonutIncome" class="seg">Pemasukan</button>
+              </div>
+            </div>
+            <div class="hint" style="margin-top: 8px">
+              Pilih "Semua Dompet" atau satu dompet, lalu pilih jenis transaksi.
+            </div>
           </div>
+
+          <div class="card pad chart-card">
+            <div id="donut" class="donut" title="Donut"></div>
+            <div>
+              <div class="sect-title">
+                <i class="fa-solid fa-chart-pie"></i> Rincian per Kategori
+              </div>
+              <div id="legend" class="legend"></div>
+              <div class="divider"></div>
+              <div class="muted" id="totalByType">Total: Rp 0</div>
+            </div>
+          </div>
+
+          <div class="card pad">
+            <div class="sect-title">
+              <i class="fa-solid fa-chart-column"></i> Pemasukan vs Pengeluaran
+              • 6 Bulan Terakhir
+            </div>
+            <div id="bars" class="bars"></div>
+            <div class="hint" style="margin-top: 8px">
+              Hijau = pemasukan, Merah = pengeluaran.
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SETTINGS ================= -->
+        <section id="settings" class="screen">
+          <div class="card pad" style="margin-bottom: 20px">
+            <div class="sect-title">
+              <i class="fa-solid fa-user"></i> Profil
+            </div>
+            <div
+              class="form-row"
+              style="grid-template-columns: 1fr auto; align-items: center"
+            >
+              <input
+                id="inDisplayName"
+                class="input"
+                type="text"
+                placeholder="Nama tampilan Anda"
+              />
+              <button id="btnSaveName" class="btn-primary">Simpan</button>
+            </div>
+            <div class="hint" style="margin-top: 8px">
+              Tip: Kamu juga bisa klik nama di bagian atas layar untuk
+              mengubahnya.
+            </div>
+          </div>
+
+          <div class="card pad">
+            <div class="sect-title">
+              <i class="fa-solid fa-list"></i> Kategori & Pencadangan
+            </div>
+            <div class="settings-actions">
+              <button id="btnOpenCats" class="btn-ghost btn-eq">
+                <i class="fa-solid fa-tags"></i> Kelola Kategori
+              </button>
+              <button id="btnExportXlsx" class="btn-ghost btn-eq btn-success">
+                <i class="fa-solid fa-download"></i> Export ke Excel
+              </button>
+              <button id="btnBackupJSON" class="btn-ghost btn-eq">
+                <i class="fa-solid fa-database"></i> Cadangkan (.json)
+              </button>
+              <label
+                for="fileRestoreJSON"
+                class="btn-ghost btn-eq"
+                style="cursor: pointer"
+              >
+                <i class="fa-solid fa-upload"></i> Pulihkan
+              </label>
+            </div>
+            <input
+              type="file"
+              id="fileRestoreJSON"
+              accept="application/json"
+              hidden
+            />
+            <div class="hint" style="margin-top: 10px">
+              Cadangkan akan <b>menyimpan seluruh data</b> ke file .json.
+              Pulihkan akan <b>menimpa data lokal</b> dengan isi file cadangan.
+            </div>
+          </div>
+          <!-- Versi app -->
+          <div class="app-version" id="appVersion">Versi 1.1</div>
+        </section>
+      </main>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottomnav card">
+        <label class="navbtn" for="tab-home"
+          ><i class="fa-solid fa-house"></i><span>Home</span></label
+        >
+        <label class="navbtn" for="tab-wallet"
+          ><i class="fa-solid fa-wallet"></i><span>Wallet</span></label
+        >
+        <label class="navbtn" for="tab-stats"
+          ><i class="fa-solid fa-chart-column"></i><span>Analisis</span></label
+        >
+        <label class="navbtn" for="tab-settings"
+          ><i class="fa-solid fa-gear"></i><span>Setting</span></label
+        >
+      </nav>
+
+      <!-- FAB -->
+      <button id="btnFabTx" class="fab" title="Tambah Transaksi">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </div>
+
+    <!-- ================ MODALS ================ -->
+    <div class="modal" id="modalAddWallet">
+      <div class="modal-card">
+        <!-- GANTI JUDUL -->
+        <div class="sect-title">
+          <i class="fa-solid fa-wallet"></i>
+          <span id="walletModalTitle">Tambah Wallet</span>
         </div>
 
-        <div class="card pad chart-card">
-          <div id="donut" class="donut" title="Donut"></div>
-          <div>
-            <div class="sect-title"><i class="fa-solid fa-chart-pie"></i> Rincian per Kategori</div>
-            <div id="legend" class="legend"></div>
-            <div class="divider"></div>
-            <div class="muted" id="totalByType">Total: Rp 0</div>
-          </div>
+        <div class="form-row">
+          <input
+            id="inWName"
+            class="input"
+            type="text"
+            placeholder="Nama Wallet (contoh: Bank BRI)"
+          />
+          <input
+            id="inWNote"
+            class="input"
+            type="text"
+            placeholder="Catatan/Label (contoh: Utama / Belanja)"
+          />
+          <input
+            id="inWBalance"
+            class="input"
+            type="number"
+            inputmode="numeric"
+            placeholder="Saldo (contoh: 1500000)"
+          />
+          <select id="inWTheme" class="select">
+            <option value="blue|fa-building-columns" selected>
+              Bank • Biru
+            </option>
+            <option value="green|fa-mobile-screen">E-Wallet • Hijau</option>
+            <option value="amber|fa-piggy-bank">Tabungan • Oranye</option>
+          </select>
         </div>
 
-        <div class="card pad">
-          <div class="sect-title"><i class="fa-solid fa-chart-column"></i> Pemasukan vs Pengeluaran • 6 Bulan Terakhir
-          </div>
-          <div id="bars" class="bars"></div>
-          <div class="hint" style="margin-top:8px">Hijau = pemasukan, Merah = pengeluaran.</div>
+        <div class="form-row end-row">
+          <button data-close="#modalAddWallet" class="btn-secondary">
+            Batal
+          </button>
+          <!-- GANTI ID TOMBOL -->
+          <button id="btnSaveWallet" class="btn-primary">Simpan</button>
         </div>
-      </section>
-
-      <!-- ================= SETTINGS ================= -->
-      <section id="settings" class="screen">
-        <div class="card pad" style="margin-bottom:20px">
-          <div class="sect-title"><i class="fa-solid fa-user"></i> Profil</div>
-          <div class="form-row" style="grid-template-columns:1fr auto; align-items:center">
-            <input id="inDisplayName" class="input" type="text" placeholder="Nama tampilan Anda" />
-            <button id="btnSaveName" class="btn-primary">Simpan</button>
-          </div>
-          <div class="hint" style="margin-top:8px">Tip: Kamu juga bisa klik nama di bagian atas layar untuk mengubahnya.
-          </div>
-        </div>
-
-        <div class="card pad">
-          <div class="sect-title"><i class="fa-solid fa-list"></i> Kategori & Pencadangan</div>
-          <div class="settings-actions">
-            <button id="btnOpenCats" class="btn-ghost btn-eq">
-              <i class="fa-solid fa-tags"></i> Kelola Kategori
-            </button>
-            <button id="btnExportXlsx" class="btn-ghost btn-eq btn-success">
-              <i class="fa-solid fa-download"></i> Export ke Excel
-            </button>
-            <button id="btnBackupJSON" class="btn-ghost btn-eq">
-              <i class="fa-solid fa-database"></i> Cadangkan (.json)
-            </button>
-            <label for="fileRestoreJSON" class="btn-ghost btn-eq" style="cursor:pointer">
-              <i class="fa-solid fa-upload"></i> Pulihkan
-            </label>
-          </div>
-          <input type="file" id="fileRestoreJSON" accept="application/json" hidden>
-          <div class="hint" style="margin-top:10px">
-            Cadangkan menyimpan <b>dompet, kategori, transaksi, nama tampilan</b> ke file .json.
-            Pulihkan akan <b>menimpa data lokal</b> dengan isi file cadangan.
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Bottom Navigation -->
-    <nav class="bottomnav card">
-      <label class="navbtn" for="tab-home"><i class="fa-solid fa-house"></i><span>Home</span></label>
-      <label class="navbtn" for="tab-wallet"><i class="fa-solid fa-wallet"></i><span>Wallet</span></label>
-      <label class="navbtn" for="tab-stats"><i class="fa-solid fa-chart-column"></i><span>Analisis</span></label>
-      <label class="navbtn" for="tab-settings"><i class="fa-solid fa-gear"></i><span>Setting</span></label>
-    </nav>
-
-    <!-- FAB -->
-    <button id="btnFabTx" class="fab" title="Tambah Transaksi"><i class="fa-solid fa-plus"></i></button>
-  </div>
-
-  <!-- ================ MODALS ================ -->
-  <!-- <div class="modal" id="modalAddWallet">
-    <div class="modal-card">
-      <div class="sect-title"><i class="fa-solid fa-plus"></i> Tambah Wallet</div>
-      <div class="form-row">
-        <input id="inWName" class="input" type="text" placeholder="Nama Wallet (contoh: Bank BRI)" />
-        <input id="inWNote" class="input" type="text" placeholder="Catatan/Label (contoh: Utama / Belanja)" />
-        <input id="inWBalance" class="input" type="number" inputmode="numeric"
-          placeholder="Saldo awal (contoh: 1500000)" />
-        <select id="inWTheme" class="select">
-          <option value="blue|fa-building-columns" selected>Bank • Biru</option>
-          <option value="green|fa-mobile-screen">E-Wallet • Hijau</option>
-          <option value="amber|fa-piggy-bank">Tabungan • Oranye</option>
-        </select>
-      </div>
-      <div class="form-row end-row">
-        <button data-close="#modalAddWallet" class="btn-secondary">Batal</button>
-        <button id="btnDoAddWallet" class="btn-primary">Simpan</button>
       </div>
     </div>
-  </div> -->
 
-  <div class="modal" id="modalAddWallet">
-  <div class="modal-card">
-    <!-- GANTI JUDUL -->
-    <div class="sect-title"><i class="fa-solid fa-wallet"></i> <span id="walletModalTitle">Tambah Wallet</span></div>
-
-    <div class="form-row">
-      <input id="inWName" class="input" type="text" placeholder="Nama Wallet (contoh: Bank BRI)" />
-      <input id="inWNote" class="input" type="text" placeholder="Catatan/Label (contoh: Utama / Belanja)" />
-      <input id="inWBalance" class="input" type="number" inputmode="numeric" placeholder="Saldo (contoh: 1500000)" />
-      <select id="inWTheme" class="select">
-        <option value="blue|fa-building-columns" selected>Bank • Biru</option>
-        <option value="green|fa-mobile-screen">E-Wallet • Hijau</option>
-        <option value="amber|fa-piggy-bank">Tabungan • Oranye</option>
-      </select>
-    </div>
-
-    <div class="form-row end-row">
-      <button data-close="#modalAddWallet" class="btn-secondary">Batal</button>
-      <!-- GANTI ID TOMBOL -->
-      <button id="btnSaveWallet" class="btn-primary">Simpan</button>
-    </div>
-  </div>
-</div>
-
-
-  <div class="modal" id="modalTx">
-    <div class="modal-card">
-      <div class="sect-title"><i class="fa-solid fa-plus"></i> <span id="txModalTitle">Tambah Transaksi</span></div>
-      <div class="form-row">
-        <div class="seg-rows">
-          <span id="tagIn" class="tagtype tag-in" data-type="in">Pemasukan</span>
-          <span id="tagOut" class="tagtype tag-out" data-type="out">Pengeluaran</span>
-          <span id="tagDebt" class="tagtype tag-debt" data-type="debt">Hutang</span>
+    <div class="modal" id="modalTx">
+      <div class="modal-card">
+        <div class="sect-title">
+          <i class="fa-solid fa-plus"></i>
+          <span id="txModalTitle">Tambah Transaksi</span>
         </div>
-        <input id="inAmount" class="input" type="number" inputmode="numeric" placeholder="Nominal (contoh: 125000)" />
-        <select id="inWallet" class="select"></select>
-        <select id="inCategory" class="select"></select>
-        <input id="inNoteTx" class="input" type="text" placeholder="Catatan (opsional)" />
-        <input id="inDate" class="date" type="date" />
-        <div class="hint" id="catHint" style="display:none">Belum ada kategori untuk tipe ini. Tambahkan di <b>Setting →
-            Kelola Kategori</b>.</div>
-      </div>
-      <div class="form-row between-row">
-        <button id="btnDeleteTx" class="btn-danger" style="display:none"><i class="fa-solid fa-trash-can"></i>
-          Hapus</button>
-        <div class="row-actions">
-          <button data-close="#modalTx" class="btn-secondary">Batal</button>
-          <button id="btnDoSaveTx" class="btn-primary">Simpan</button>
+        <div class="form-row">
+          <div class="seg-rows">
+            <span id="tagIn" class="tagtype tag-in" data-type="in"
+              >Pemasukan</span
+            >
+            <span id="tagOut" class="tagtype tag-out" data-type="out"
+              >Pengeluaran</span
+            >
+            <span id="tagDebt" class="tagtype tag-debt" data-type="debt"
+              >Hutang</span
+            >
+          </div>
+          <input
+            id="inAmount"
+            class="input"
+            type="number"
+            inputmode="numeric"
+            placeholder="Nominal (contoh: 125000)"
+          />
+          <select id="inWallet" class="select"></select>
+          <select id="inCategory" class="select"></select>
+          <input
+            id="inNoteTx"
+            class="input"
+            type="text"
+            placeholder="Catatan (opsional)"
+          />
+          <input id="inDate" class="date" type="date" />
+          <div class="hint" id="catHint" style="display: none">
+            Belum ada kategori untuk tipe ini. Tambahkan di
+            <b>Setting → Kelola Kategori</b>.
+          </div>
+        </div>
+        <div class="form-row between-row">
+          <button id="btnDeleteTx" class="btn-danger" style="display: none">
+            <i class="fa-solid fa-trash-can"></i> Hapus
+          </button>
+          <div class="row-actions">
+            <button data-close="#modalTx" class="btn-secondary">Batal</button>
+            <button id="btnDoSaveTx" class="btn-primary">Simpan</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="modal" id="modalCats">
-    <div class="modal-card">
-      <div class="sect-title"><i class="fa-solid fa-tags"></i> Kelola Kategori</div>
-      <div class="form-row">
-        <select id="catType" class="select">
-          <option value="income">Pemasukan</option>
-          <option value="expense">Pengeluaran</option>
-        </select>
-        <div class="row-input">
-          <input id="catName" class="input" type="text" placeholder="Nama kategori (mis. Gaji / Makan)" />
-          <button id="btnAddCat" class="btn-primary">Tambah</button>
+    <div class="modal" id="modalCats">
+      <div class="modal-card">
+        <div class="sect-title">
+          <i class="fa-solid fa-tags"></i> Kelola Kategori
         </div>
-        <div id="catList"></div>
-      </div>
-      <div class="form-row end-row">
-        <button data-close="#modalCats" class="btn-secondary">Tutup</button>
+        <div class="form-row">
+          <select id="catType" class="select">
+            <option value="income">Pemasukan</option>
+            <option value="expense">Pengeluaran</option>
+          </select>
+          <div class="row-input">
+            <input
+              id="catName"
+              class="input"
+              type="text"
+              placeholder="Nama kategori (mis. Gaji / Makan)"
+            />
+            <button id="btnAddCat" class="btn-primary">Tambah</button>
+          </div>
+          <div id="catList"></div>
+        </div>
+        <div class="form-row end-row">
+          <button data-close="#modalCats" class="btn-secondary">Tutup</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- App -->
-  <script src="app.js"></script>
-</body>
-
+    <!-- App -->
+    <script src="app.js"></script>
+  </body>
 </html>

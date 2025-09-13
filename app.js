@@ -1,4 +1,5 @@
 /* ===== Keys & Utils ===== */
+const APP_VERSION = "1.1";
 const LS_WALLETS = "fin_wallets";
 const LS_CATS = "fin_categories";
 const LS_TX = "fin_transactions";
@@ -175,25 +176,6 @@ function renderSummary() {
     ? `• ${wallets.length} dompet`
     : "";
 }
-
-// function walletItemHTML(w) {
-//   return `<div class="wallet-item" data-id="${w.id}">
-//     <div class="wallet-left">
-//       <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(
-//     w.icon
-//   )}"></i></div>
-//       <div class="wallet-meta"><b>${w.name}</b><small>${
-//     w.note || ""
-//   }</small></div>
-//     </div>
-//     <div>
-//       <span class="pill">${fmtIDR(w.balance)}</span>
-//       <button class="btn-del" data-action="del" data-id="${
-//         w.id
-//       }" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
-//     </div>
-//   </div>`;
-// }
 
 function walletItemHTML(w) {
   return `<div class="wallet-item" data-id="${w.id}">
@@ -947,7 +929,7 @@ function updateFabForTab() {
     fab.style.display = "grid";
     fab.title = "Tambah Wallet";
     // fab.onclick = () => openModal("#modalAddWallet");
-    fab.onclick = openWalletModalCreate; 
+    fab.onclick = openWalletModalCreate;
   } else if (isStats || isSetting) {
     fab.style.display = "none";
   } else {
@@ -965,6 +947,9 @@ document.addEventListener("DOMContentLoaded", () => {
   renderAll();
   onTabChange();
   syncEyeIcons();
+
+  const v = document.getElementById("appVersion");
+  if (v) v.textContent = `Versi ${APP_VERSION}`;
 
   // Nav tabs
   ["#tab-home", "#tab-wallet", "#tab-stats", "#tab-settings"].forEach((sel) =>
@@ -986,8 +971,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Wallet actions
   // $("#btnDoAddWallet")?.addEventListener("click", doAddWallet);
-  $('#btnSaveWallet')?.addEventListener('click', saveWalletFromModal);
-
+  $("#btnSaveWallet")?.addEventListener("click", saveWalletFromModal);
 
   $("#walletList")?.addEventListener("click", (e) => {
     const editBtn = e.target.closest?.('[data-action="edit"]');
