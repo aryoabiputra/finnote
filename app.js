@@ -1,5 +1,5 @@
 /* ===== Keys & Utils ===== */
-const APP_VERSION = "1.1";
+const APP_VERSION = "1.2";
 const LS_WALLETS = "fin_wallets";
 const LS_CATS = "fin_categories";
 const LS_TX = "fin_transactions";

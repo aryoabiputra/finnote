@@ -18,6 +18,9 @@
     <!-- Styles -->
     <link rel="stylesheet" href="styles.css" />
 
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#0ea5e9" />
+
     <!-- SheetJS loader (untuk Export Excel) -->
     <script>
       (function loadSheetJS() {
@@ -446,5 +449,12 @@
 
     <!-- App -->
     <script src="app.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js").catch(console.error);
+        });
+      }
+    </script>
   </body>
 </html>
