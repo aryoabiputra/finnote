@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,19 +15,19 @@
 
   <!-- Loader SheetJS (multi-CDN + flag). Biarkan sebelum app.js -->
   <script>
-    (function loadSheetJS(){
-      if (window.XLSX){ window.__XLSX_READY__ = true; return; }
-      function add(src, onload, onerror){
-        var s=document.createElement("script");
-        s.src=src; s.defer=true;
-        s.onload=function(){ window.__XLSX_READY__=true; onload&&onload(); };
-        s.onerror=function(){ onerror&&onerror(); };
+    (function loadSheetJS() {
+      if (window.XLSX) { window.__XLSX_READY__ = true; return; }
+      function add(src, onload, onerror) {
+        var s = document.createElement("script");
+        s.src = src; s.defer = true;
+        s.onload = function () { window.__XLSX_READY__ = true; onload && onload(); };
+        s.onerror = function () { onerror && onerror(); };
         document.head.appendChild(s);
       }
       // jsDelivr -> unpkg -> official
-      add("https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js",null,function(){
-        add("https://unpkg.com/xlsx@0.20.2/dist/xlsx.full.min.js",null,function(){
-          add("https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js",null,function(){
+      add("https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js", null, function () {
+        add("https://unpkg.com/xlsx@0.20.2/dist/xlsx.full.min.js", null, function () {
+          add("https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js", null, function () {
             console.warn("Semua CDN SheetJS gagal dimuat.");
           });
         });
@@ -34,6 +35,7 @@
     })();
   </script>
 </head>
+
 <body>
   <div class="app tabs">
     <!-- NAV radios -->
@@ -64,7 +66,8 @@
         <div class="home-stack">
           <!-- Saldo per Dompet -->
           <div class="card pad">
-            <div class="sect-title"><i class="fa-solid fa-wallet"></i> Saldo <span class="mini" id="walletCountHint"></span></div>
+            <div class="sect-title"><i class="fa-solid fa-wallet"></i> Saldo <span class="mini"
+                id="walletCountHint"></span></div>
             <div id="homeWalletList"></div>
           </div>
 
@@ -96,13 +99,15 @@
       <!-- WALLET -->
       <section id="wallet" class="screen">
         <div class="card pad">
-          <div class="sect-title"><i class="fa-solid fa-wallet"></i> Daftar Wallet <span class="mini">• Taruh semua akun kamu</span></div>
+          <div class="sect-title"><i class="fa-solid fa-wallet"></i> Daftar Wallet <span class="mini">• Taruh semua akun
+              kamu</span></div>
           <div class="divider"></div>
           <div id="walletList"></div>
           <div class="center" style="margin-top:12px">
             <button id="btnOpenAdd" class="btn-ghost"><i class="fa-solid fa-plus"></i> Tambah Wallet</button>
           </div>
-          <div class="hint" style="margin-top:8px">Klik ikon 🗑 untuk menghapus wallet (transaksi terkait ikut dihapus).</div>
+          <div class="hint" style="margin-top:8px">Klik ikon 🗑 untuk menghapus wallet (transaksi terkait ikut dihapus).
+          </div>
         </div>
       </section>
 
@@ -114,10 +119,11 @@
             <select id="statsWallet" class="select"></select>
             <div class="segmented">
               <button id="btnDonutExpense" class="seg active">Pengeluaran</button>
-              <button id="btnDonutIncome"  class="seg">Pemasukan</button>
+              <button id="btnDonutIncome" class="seg">Pemasukan</button>
             </div>
           </div>
-          <div class="hint" style="margin-top:8px">Pilih "Semua Dompet" atau satu dompet, lalu pilih jenis transaksi.</div>
+          <div class="hint" style="margin-top:8px">Pilih "Semua Dompet" atau satu dompet, lalu pilih jenis transaksi.
+          </div>
         </div>
 
         <div class="card pad chart-card">
@@ -131,7 +137,8 @@
         </div>
 
         <div class="card pad">
-          <div class="sect-title"><i class="fa-solid fa-chart-column"></i> Pemasukan vs Pengeluaran • 6 Bulan Terakhir</div>
+          <div class="sect-title"><i class="fa-solid fa-chart-column"></i> Pemasukan vs Pengeluaran • 6 Bulan Terakhir
+          </div>
           <div id="bars" class="bars"></div>
           <div class="hint" style="margin-top:8px">Hijau = pemasukan, Merah = pengeluaran.</div>
         </div>
@@ -145,19 +152,43 @@
             <input id="inDisplayName" class="input" type="text" placeholder="Nama tampilan Anda" />
             <button id="btnSaveName" class="btn-primary">Simpan</button>
           </div>
-          <div class="hint" style="margin-top:8px">Tip: Kamu juga bisa klik nama di bagian atas layar untuk mengubahnya.</div>
+          <div class="hint" style="margin-top:8px">Tip: Kamu juga bisa klik nama di bagian atas layar untuk mengubahnya.
+          </div>
         </div>
 
         <div class="card pad">
-          <div class="sect-title"><i class="fa-solid fa-list"></i> Kategori & Export</div>
-          <div class="center left-start" style="gap:10px">
-            <button id="btnOpenCats" class="btn-ghost"><i class="fa-solid fa-tags"></i> Kelola Kategori</button>
-            <button id="btnExportXlsx" class="btn-ghost" style="background:linear-gradient(135deg,#22c55e,#16a34a); box-shadow:0 10px 24px rgba(22,163,74,.35)">
-              <i class="fa-solid fa-download"></i> Export ke Excel
-            </button>
+          <div class="sect-title"><i class="fa-solid fa-list"></i> Kategori & Pencadangan</div>
+          <div class="center" style="gap:10px; grid-auto-flow:row">
+            <div class="center" style="gap:10px">
+              <button id="btnOpenCats" class="btn-ghost">
+                <i class="fa-solid fa-tags"></i> Kelola Kategori
+              </button>
+              <button id="btnExportXlsx" class="btn-ghost"
+                style="background:linear-gradient(135deg,#22c55e,#16a34a); box-shadow:0 10px 24px rgba(22,163,74,.35)">
+                <i class="fa-solid fa-download"></i> Export ke Excel
+              </button>
+            </div>
+
+            <!-- Tombol Backup & Restore JSON -->
+            <div class="center" style="gap:10px">
+              <button id="btnBackupJSON" class="btn-ghost">
+                <i class="fa-solid fa-database"></i> Cadangkan (.json)
+              </button>
+
+              <!-- Gunakan label agar tampak seperti tombol -->
+              <label for="fileRestoreJSON" class="btn-ghost" style="cursor:pointer">
+                <i class="fa-solid fa-upload"></i> Pulihkan
+              </label>
+              <input type="file" id="fileRestoreJSON" accept="application/json" hidden>
+            </div>
           </div>
-          <div class="hint" style="margin-top:10px">Buat ringkasan keuangan dalam bentuk excel.</div>
+
+          <div class="hint" style="margin-top:10px">
+            Cadangkan akan menyimpan <b>dompet, kategori, transaksi, dan nama tampilan</b> ke file .json.<br>
+            Pulihkan akan <b>menimpa data lokal</b> dengan isi file cadangan.
+          </div>
         </div>
+
       </section>
     </main>
 
@@ -177,7 +208,8 @@
       <div class="form-row">
         <input id="inWName" class="input" type="text" placeholder="Nama Wallet (contoh: Bank BRI)" />
         <input id="inWNote" class="input" type="text" placeholder="Catatan/Label (contoh: Utama / Belanja)" />
-        <input id="inWBalance" class="input" type="number" inputmode="numeric" placeholder="Saldo awal (contoh: 1500000)" />
+        <input id="inWBalance" class="input" type="number" inputmode="numeric"
+          placeholder="Saldo awal (contoh: 1500000)" />
         <select id="inWTheme" class="select">
           <option value="blue|fa-building-columns" selected>Bank • Biru</option>
           <option value="green|fa-mobile-screen">E-Wallet • Hijau</option>
@@ -196,19 +228,21 @@
       <div class="sect-title"><i class="fa-solid fa-plus"></i> <span id="txModalTitle">Tambah Transaksi</span></div>
       <div class="form-row">
         <div class="seg-rows">
-          <span id="tagIn"   class="tagtype tag-in"   data-type="in">Pemasukan</span>
-          <span id="tagOut"  class="tagtype tag-out"  data-type="out">Pengeluaran</span>
+          <span id="tagIn" class="tagtype tag-in" data-type="in">Pemasukan</span>
+          <span id="tagOut" class="tagtype tag-out" data-type="out">Pengeluaran</span>
           <span id="tagDebt" class="tagtype tag-debt" data-type="debt">Hutang</span>
         </div>
-        <input  id="inAmount"   class="input" type="number" inputmode="numeric" placeholder="Nominal (contoh: 125000)" />
-        <select id="inWallet"   class="select"></select>
+        <input id="inAmount" class="input" type="number" inputmode="numeric" placeholder="Nominal (contoh: 125000)" />
+        <select id="inWallet" class="select"></select>
         <select id="inCategory" class="select"></select>
-        <input  id="inNoteTx"   class="input" type="text" placeholder="Catatan (opsional)" />
-        <input  id="inDate"     class="date"  type="date" />
-        <div class="hint" id="catHint" style="display:none">Belum ada kategori untuk tipe ini. Tambahkan di <b>Setting → Kelola Kategori</b>.</div>
+        <input id="inNoteTx" class="input" type="text" placeholder="Catatan (opsional)" />
+        <input id="inDate" class="date" type="date" />
+        <div class="hint" id="catHint" style="display:none">Belum ada kategori untuk tipe ini. Tambahkan di <b>Setting →
+            Kelola Kategori</b>.</div>
       </div>
       <div class="form-row between-row">
-        <button id="btnDeleteTx" class="btn-danger" style="display:none"><i class="fa-solid fa-trash-can"></i> Hapus</button>
+        <button id="btnDeleteTx" class="btn-danger" style="display:none"><i class="fa-solid fa-trash-can"></i>
+          Hapus</button>
         <div class="row-actions">
           <button data-close="#modalTx" class="btn-secondary">Batal</button>
           <button id="btnDoSaveTx" class="btn-primary">Simpan</button>
@@ -245,4 +279,5 @@
   <!-- App -->
   <script src="app.js"></script>
 </body>
+
 </html>

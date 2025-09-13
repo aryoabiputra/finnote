@@ -567,6 +567,88 @@ function exportToExcel() {
   XLSX.writeFile(wb, `FinNote-Export-${ts}.xlsx`);
 }
 
+/* ===== Backup (.json) & Restore ===== */
+function makeBackupPayload() {
+  return {
+    app: 'FinNote',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    displayName,
+    wallets,
+    cats,
+    txs
+  };
+}
+
+function downloadJSON(obj, filename) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function handleBackupJSON() {
+  const payload = makeBackupPayload();
+  const ts = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16);
+  downloadJSON(payload, `FinNote-Backup-${ts}.json`);
+  alert('Cadangan berhasil dibuat.');
+}
+
+function isValidBackup(json) {
+  if (!json) return false;
+  // Minimal field check
+  return (
+    (json.app === 'FinNote' || typeof json.app === 'undefined') && // toleran
+    Array.isArray(json.wallets) &&
+    json.cats && Array.isArray(json.cats.income || []) && Array.isArray(json.cats.expense || []) &&
+    Array.isArray(json.txs)
+  );
+}
+
+async function handleRestoreJSONFile(file) {
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+
+    if (!isValidBackup(data)) {
+      alert('File cadangan tidak valid.');
+      return;
+    }
+
+    if (!confirm('Pulihkan data dari cadangan? Ini akan MENIMPA data lokal saat ini.')) return;
+
+    // Simpan ke localStorage
+    if (typeof data.displayName === 'string' && data.displayName.trim()) {
+  // pastikan tanpa tanda kutip
+  displayName = data.displayName.trim().replace(/^"(.*)"$/, '$1');
+  localStorage.setItem(LS_NAME, displayName);
+}
+
+    wallets = Array.isArray(data.wallets) ? data.wallets : [];
+    cats = data.cats || { income: [], expense: [] };
+    txs = Array.isArray(data.txs) ? data.txs : [];
+
+    save(LS_WALLETS, wallets);
+    save(LS_CATS, cats);
+    save(LS_TX, txs);
+
+    renderAll();
+    alert('Pemulihan berhasil. Data telah dimuat.');
+    // Kembali ke Home agar terasa jelas
+    $('#tab-home').checked = true;
+    onTabChange();
+  } catch (e) {
+    console.error(e);
+    alert('Gagal memulihkan. Pastikan file .json asli dari cadangan aplikasi ini.');
+  }
+}
+
+
 /* ===== Smooth UX: screen activation + stagger (blur + slide) ===== */
 function animateCurrentScreen() {
   // bersihkan kelas .is-active di semua screen
@@ -719,4 +801,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Siapkan observer global untuk reveal saat scroll (awal load)
   const io = ensureObserver();
   $$('.screen .card').forEach((c) => io.observe(c));
+
+    // Backup & Restore JSON
+  $('#btnBackupJSON')?.addEventListener('click', handleBackupJSON);
+  $('#fileRestoreJSON')?.addEventListener('change', (e) => {
+    const f = e.target.files?.[0];
+    if (f) handleRestoreJSONFile(f);
+    e.target.value = ''; // reset input supaya bisa pilih file sama lagi
+  });
+
 });
