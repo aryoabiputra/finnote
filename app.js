@@ -1,5 +1,5 @@
 /* ===== Keys & Utils ===== */
-const APP_VERSION = "1.2";
+const APP_VERSION = "1.1";
 const LS_WALLETS = "fin_wallets";
 const LS_CATS = "fin_categories";
 const LS_TX = "fin_transactions";
@@ -7,6 +7,9 @@ const LS_NAME = "fin_display_name";
 const LS_HIDE_TOTAL = "fin_hide_total";
 const LS_HIDE_WALLETS = "fin_hide_wallets";
 const LS_HIDE_DEBT = "fin_hide_debt";
+const MAX_WALLET_NAME = 30;   // ubah sesuai selera
+const MAX_WALLET_NOTE = 40;
+
 
 const $  = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -26,6 +29,25 @@ const fmtDate = (iso) =>
         day: "numeric",
       })
     : "";
+
+    function fitTextToWidth(el, { min = 11, max = 14, step = 0.5 } = {}) {
+  if (!el) return;
+  let size = max;
+  el.style.fontSize = size + "px";
+  el.style.lineHeight = "1.15";
+  const parent = el.parentElement;
+  if (!parent) return;
+  const limit = parent.clientWidth || 0;
+  while (el.scrollWidth > limit && size > min) {
+    size -= step;
+    el.style.fontSize = Math.max(min, size) + "px";
+  }
+}
+
+function autoshrinkWalletTexts() {
+  $$(".wallet-item .wallet-meta b, .wallet-item .wallet-meta small, .wallet-item-home .wallet-meta b, .wallet-item-home .wallet-meta small")
+    .forEach(node => fitTextToWidth(node, { min: 11, max: 14, step: 0.5 }));
+}
 
 const themeCls = (t) =>
   t === "green" ? "grad-green" : t === "amber" ? "grad-amber" : "grad-blue";
@@ -226,8 +248,8 @@ function openWalletModalEdit(id) {
   openModal("#modalAddWallet");
 }
 function saveWalletFromModal() {
-  const name = ($("#inWName").value || "").trim();
-  const note = ($("#inWNote").value || "").trim();
+  const name = ($("#inWName").value || "").trim().slice(0, MAX_WALLET_NAME);
+const note = ($("#inWNote").value || "").trim().slice(0, MAX_WALLET_NOTE);
   const balance = Number($("#inWBalance").value || 0);
   const [theme, icon] = ($("#inWTheme").value || "blue|fa-building-columns").split("|");
   if (!name) { alert("Nama wallet wajib diisi."); return; }
@@ -909,3 +931,4 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#tagOut") ?.addEventListener("click", () => setTxType("out"));
   $("#tagDebt")?.addEventListener("click", () => setTxType("debt"));
 });
+
