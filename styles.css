@@ -213,7 +213,7 @@ main {
 }
 .balance-amount {
   margin: 6px 0 2px;
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 800;
   letter-spacing: 0.3px;
   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
@@ -248,6 +248,12 @@ main {
   color: #fff;
   background: linear-gradient(135deg, var(--brand1), var(--brand2));
   box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
+}
+
+.wallet-meta {
+  display: flex;
+  flex-direction: column; /* susun vertikal */
+  line-height: 1.2;       /* jarak rapat tapi rapi */
 }
 .wallet-meta b {
   font-size: 14px;
@@ -944,4 +950,16 @@ main {
   #walletList .wallet-actions .pill{ display:none; }
 }
 
+/* Batasi panjang teks nama wallet */
+.wallet-meta b,
+.wallet-meta small,
+.tx-title,
+.catitem > div {
+  max-width: 180px;       /* sesuaikan lebar maksimal */
+  white-space: nowrap;    /* jangan pindah baris */
+  overflow: hidden;       /* sembunyikan teks berlebih */
+  text-overflow: ellipsis;/* tampilkan ... */
+  display: inline-block;  /* pastikan properti berlaku */
+  vertical-align: middle;
+}
 

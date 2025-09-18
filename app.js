@@ -8,7 +8,7 @@ const LS_HIDE_TOTAL = "fin_hide_total";
 const LS_HIDE_WALLETS = "fin_hide_wallets";
 const LS_HIDE_DEBT = "fin_hide_debt";
 
-const $  = (s) => document.querySelector(s);
+const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
 const fmtIDR = (n) =>
@@ -21,10 +21,10 @@ const fmtIDR = (n) =>
 const fmtDate = (iso) =>
   iso
     ? new Date(iso).toLocaleDateString("id-ID", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
     : "";
 
 const themeCls = (t) =>
@@ -36,7 +36,7 @@ const load = (k, d) => {
   try {
     const r = localStorage.getItem(k);
     if (r) return JSON.parse(r);
-  } catch {}
+  } catch { }
   return d;
 };
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
@@ -46,9 +46,9 @@ let walletMode = "create"; // 'create' | 'edit'
 let editingWalletId = null;
 
 let wallets = load(LS_WALLETS, [
-  { id: uuid(), name: "Rekening Bank", note: "Utama",            balance: 0, theme: "blue",  icon: "fa-building-columns" },
-  { id: uuid(), name: "DANA",          note: "Belanja & Harian", balance: 0, theme: "green", icon: "fa-mobile-screen"   },
-  { id: uuid(), name: "Tabungan",      note: "Cadangan",         balance: 0, theme: "amber", icon: "fa-piggy-bank"       },
+  { id: uuid(), name: "Rekening Bank", note: "Utama", balance: 0, theme: "blue", icon: "fa-building-columns" },
+  { id: uuid(), name: "DANA", note: "Belanja & Harian", balance: 0, theme: "green", icon: "fa-mobile-screen" },
+  { id: uuid(), name: "Tabungan", note: "Cadangan", balance: 0, theme: "amber", icon: "fa-piggy-bank" },
 ]);
 let cats = load(LS_CATS, { income: [], expense: [] });
 let txs = load(LS_TX, []);
@@ -62,9 +62,9 @@ let historyFilter = null; // null|'in'|'out'|'debt'
 let statsPeriod = "month"; // 'month' | 'year'
 
 /* ===== Hidden balance toggles ===== */
-let hideTotal   = localStorage.getItem(LS_HIDE_TOTAL)   === "1";
+let hideTotal = localStorage.getItem(LS_HIDE_TOTAL) === "1";
 let hideWallets = localStorage.getItem(LS_HIDE_WALLETS) === "1";
-let hideDebt    = localStorage.getItem(LS_HIDE_DEBT)    === "1";
+let hideDebt = localStorage.getItem(LS_HIDE_DEBT) === "1";
 
 /* ===== Reveal-on-scroll Observer ===== */
 let _io = null;
@@ -149,9 +149,9 @@ function syncEyeIcons() {
   const t = $("#toggleTotal i");
   const w = $("#toggleWallets i");
   const d = $("#toggleDebt i");
-  if (t) t.className = hideTotal   ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+  if (t) t.className = hideTotal ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
   if (w) w.className = hideWallets ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
-  if (d) d.className = hideDebt    ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+  if (d) d.className = hideDebt ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
 }
 
 function recentTxItemHTML(t) {
@@ -200,7 +200,7 @@ function renderAll() {
 
 /* ===== Modal helpers ===== */
 function openModal(sel) { $(sel).classList.add("show"); }
-function closeModal(sel){ $(sel).classList.remove("show"); }
+function closeModal(sel) { $(sel).classList.remove("show"); }
 
 /* ===== Wallet CRUD (Tambah/Edit) ===== */
 function openWalletModalCreate() {
@@ -292,8 +292,8 @@ function deleteCategory(name) {
 /* ===== Transactions ===== */
 function setTxType(t) {
   txType = t;
-  $("#tagIn").style.outline   = t === "in"   ? "2px solid rgba(34,197,94,.6)" : "none";
-  $("#tagOut").style.outline  = t === "out"  ? "2px solid rgba(239,68,68,.6)" : "none";
+  $("#tagIn").style.outline = t === "in" ? "2px solid rgba(34,197,94,.6)" : "none";
+  $("#tagOut").style.outline = t === "out" ? "2px solid rgba(239,68,68,.6)" : "none";
   $("#tagDebt").style.outline = t === "debt" ? "2px solid rgba(245,158,11,.6)" : "none";
   fillTxCategory();
 }
@@ -410,11 +410,11 @@ function doDeleteTx(txId, silentClose = false) {
 }
 
 /* ===== Statistik (Donut + Bars) ===== */
-const PALETTE = ["#60a5fa","#34d399","#f59e0b","#ef4444","#a78bfa","#22d3ee","#f472b6","#f97316"];
+const PALETTE = ["#60a5fa", "#34d399", "#f59e0b", "#ef4444", "#a78bfa", "#22d3ee", "#f472b6", "#f97316"];
 
 function fillStatsWalletSelect() {
   const sel = $("#statsWallet");
-  sel.innerHTML = [ `<option value="all">Semua Dompet (${wallets.length})</option>` ]
+  sel.innerHTML = [`<option value="all">Semua Dompet (${wallets.length})</option>`]
     .concat(wallets.map((w) => `<option value="${w.id}">${w.name}</option>`)).join("");
   if (statsWalletId !== "all" && !wallets.some((w) => w.id === statsWalletId)) statsWalletId = "all";
   sel.value = statsWalletId;
@@ -430,7 +430,7 @@ function monthKey(d) {
 }
 function monthLabel(key) {
   const [y, m] = key.split("-").map(Number);
-  return ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][m - 1];
+  return ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"][m - 1];
 }
 function yearKey(d) { return String(new Date(d).getFullYear()); }
 function yearLabel(y) { return y; }
@@ -440,7 +440,7 @@ function lastNMonthsKeys(n) {
   const keys = [];
   for (let i = n - 1; i >= 0; i--) {
     const dt = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    keys.push(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2,"0")}`);
+    keys.push(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`);
   }
   return keys;
 }
@@ -523,23 +523,23 @@ function renderBars() {
     barsEl.style.gridTemplateColumns = `repeat(${keys.length}, 1fr)`;
 
     const series = keys.map((k) => {
-      const inSum  = base.filter((t) => t.type === "in"  && yearKey(t.date) === k).reduce((a,b)=>a+b.amount,0);
-      const outSum = base.filter((t) => t.type === "out" && yearKey(t.date) === k).reduce((a,b)=>a+b.amount,0);
+      const inSum = base.filter((t) => t.type === "in" && yearKey(t.date) === k).reduce((a, b) => a + b.amount, 0);
+      const outSum = base.filter((t) => t.type === "out" && yearKey(t.date) === k).reduce((a, b) => a + b.amount, 0);
       return { k, inSum, outSum, label: k };
     });
 
-    const maxVal = Math.max(1, ...series.flatMap((s)=>[s.inSum, s.outSum]));
+    const maxVal = Math.max(1, ...series.flatMap((s) => [s.inSum, s.outSum]));
     const chartHeight = 170, ghost = 6, minNZ = 10;
 
-    barsEl.innerHTML = series.map((s)=>{
-      const hInRaw  = (s.inSum / maxVal)  * chartHeight;
+    barsEl.innerHTML = series.map((s) => {
+      const hInRaw = (s.inSum / maxVal) * chartHeight;
       const hOutRaw = (s.outSum / maxVal) * chartHeight;
-      const hIn  = s.inSum  === 0 ? ghost : Math.max(minNZ, Math.round(hInRaw));
+      const hIn = s.inSum === 0 ? ghost : Math.max(minNZ, Math.round(hInRaw));
       const hOut = s.outSum === 0 ? ghost : Math.max(minNZ, Math.round(hOutRaw));
       return `<div class="bar" title="${s.label} • In: ${fmtIDR(s.inSum)} | Out: ${fmtIDR(s.outSum)}">
         <div class="cols">
-          <div class="col in"  style="height:${hIn}px;  opacity:${s.inSum===0?0.35:1}"></div>
-          <div class="col out" style="height:${hOut}px; opacity:${s.outSum===0?0.35:1}"></div>
+          <div class="col in"  style="height:${hIn}px;  opacity:${s.inSum === 0 ? 0.35 : 1}"></div>
+          <div class="col out" style="height:${hOut}px; opacity:${s.outSum === 0 ? 0.35 : 1}"></div>
         </div>
         <label>${s.label}</label>
       </div>`;
@@ -550,23 +550,23 @@ function renderBars() {
     barsEl.style.gridTemplateColumns = `repeat(${keys.length}, 1fr)`;
 
     const series = keys.map((k) => {
-      const inSum  = base.filter((t) => t.type === "in"  && monthKey(t.date) === k).reduce((a,b)=>a+b.amount,0);
-      const outSum = base.filter((t) => t.type === "out" && monthKey(t.date) === k).reduce((a,b)=>a+b.amount,0);
+      const inSum = base.filter((t) => t.type === "in" && monthKey(t.date) === k).reduce((a, b) => a + b.amount, 0);
+      const outSum = base.filter((t) => t.type === "out" && monthKey(t.date) === k).reduce((a, b) => a + b.amount, 0);
       return { k, inSum, outSum, label: monthLabel(k) };
     });
 
-    const maxVal = Math.max(1, ...series.flatMap((s)=>[s.inSum, s.outSum]));
+    const maxVal = Math.max(1, ...series.flatMap((s) => [s.inSum, s.outSum]));
     const chartHeight = 170, ghost = 6, minNZ = 10;
 
-    barsEl.innerHTML = series.map((s)=>{
-      const hInRaw  = (s.inSum / maxVal)  * chartHeight;
+    barsEl.innerHTML = series.map((s) => {
+      const hInRaw = (s.inSum / maxVal) * chartHeight;
       const hOutRaw = (s.outSum / maxVal) * chartHeight;
-      const hIn  = s.inSum  === 0 ? ghost : Math.max(minNZ, Math.round(hInRaw));
+      const hIn = s.inSum === 0 ? ghost : Math.max(minNZ, Math.round(hInRaw));
       const hOut = s.outSum === 0 ? ghost : Math.max(minNZ, Math.round(hOutRaw));
       return `<div class="bar" title="${s.label} • In: ${fmtIDR(s.inSum)} | Out: ${fmtIDR(s.outSum)}">
         <div class="cols">
-          <div class="col in"  style="height:${hIn}px;  opacity:${s.inSum===0?0.35:1}"></div>
-          <div class="col out" style="height:${hOut}px; opacity:${s.outSum===0?0.35:1}"></div>
+          <div class="col in"  style="height:${hIn}px;  opacity:${s.inSum === 0 ? 0.35 : 1}"></div>
+          <div class="col out" style="height:${hOut}px; opacity:${s.outSum === 0 ? 0.35 : 1}"></div>
         </div>
         <label>${s.label}</label>
       </div>`;
@@ -600,48 +600,199 @@ function bindExportButtonGuard() {
 }
 function exportToExcel() {
   if (!window.XLSX) { alert("Sedang memuat modul Excel… coba lagi sebentar lagi."); return; }
-  const walletsSheet = wallets.map((w) => ({
-    id: w.id, nama: w.name, catatan: w.note || "", saldo: Number(w.balance || 0), tema: w.theme, icon: w.icon,
-  }));
-  const txSheet = txs.map((t) => {
-    const w = wallets.find((x) => x.id === t.walletId);
-    return {
-      id: t.id, tanggal: toISO(t.date),
-      tipe: t.type === "in" ? "Pemasukan" : t.type === "out" ? "Pengeluaran" : "Hutang",
-      nominal: Number(t.amount || 0), dompet: w ? w.name : "(tidak ditemukan)",
-      kategori: t.category || "", catatan: t.note || "",
-    };
-  });
-  const catsIncome = (cats.income || []).map((name) => ({ tipe: "Pemasukan",  kategori: name }));
-  const catsExpense= (cats.expense|| []).map((name) => ({ tipe: "Pengeluaran", kategori: name }));
-  const catsSheet = [...catsIncome, ...catsExpense];
 
-  const wb = XLSX.utils.book_new();
-  const wsWallets = XLSX.utils.json_to_sheet(walletsSheet);
-  const wsTx      = XLSX.utils.json_to_sheet(txSheet);
-  const wsCats    = XLSX.utils.json_to_sheet(catsSheet);
-  XLSX.utils.book_append_sheet(wb, wsWallets, "Wallets");
-  XLSX.utils.book_append_sheet(wb, wsTx,      "Transaksi");
-  XLSX.utils.book_append_sheet(wb, wsCats,    "Kategori");
-
-  [wsWallets, wsTx, wsCats].forEach((ws) => {
-    const range = XLSX.utils.decode_range(ws["!ref"]);
-    const widths = [];
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      let max = 10;
-      for (let R = range.s.r; R <= range.e.r; ++R) {
-        const cell = ws[XLSX.utils.encode_cell({ r: R, c: C })];
-        const v = cell && cell.v != null ? String(cell.v) : "";
-        max = Math.max(max, v.length + 2);
-      }
-      widths.push({ wch: Math.min(max, 40) });
+  // --- Helper: nama sheet aman (maks 31 char, tanpa karakter ilegal) ---
+  const usedSheetNames = new Set();
+  function safeSheetName(name) {
+    let base = String(name || "Sheet").replace(/[:\\/?*\[\]]/g, " ").trim();
+    if (!base) base = "Sheet";
+    if (base.length > 28) base = base.slice(0, 28); // sisakan slot untuk (n)
+    let candidate = base;
+    let i = 2;
+    while (usedSheetNames.has(candidate)) {
+      candidate = `${base}(${i++})`;
+      if (candidate.length > 31) candidate = candidate.slice(0, 31);
     }
-    ws["!cols"] = widths;
+    usedSheetNames.add(candidate);
+    return candidate;
+  }
+
+  // --- Helper: Saldo awal = saldo sekarang - (total in - total out) ---
+  function computeOpeningBalance(walletId) {
+    const w = wallets.find(x => x.id === walletId);
+    if (!w) return 0;
+    let sumIn = 0, sumOut = 0;
+    for (const t of txs) {
+      if (t.walletId !== walletId) continue;
+      if (t.type === "in") sumIn += Number(t.amount || 0);
+      if (t.type === "out") sumOut += Number(t.amount || 0);
+      // debt diabaikan: tidak mempengaruhi saldo dompet (sesuai app)
+    }
+    return Number(w.balance || 0) - (sumIn - sumOut);
+  }
+
+  // --- Helper: format ISO YYYY-MM-DD aman ---
+  function toISO(d) {
+    if (!d) return "";
+    const dt = new Date(d);
+    return isNaN(dt) ? String(d) : dt.toISOString().slice(0, 10);
+  }
+
+  // --- Workbook baru ---
+  const wb = XLSX.utils.book_new();
+
+  // === Sheet RINGKASAN (opsional tapi berguna) ===
+  const summaryRows = [
+    { Dompet: "Ringkasan", "Saldo Awal": "", "Total Debit": "", "Total Kredit": "", "Saldo Akhir": "" }
+  ];
+  let grandOpen = 0, grandDebit = 0, grandKredit = 0, grandAkhir = 0;
+
+  // === Satu sheet per dompet: Buku Besar ===
+  for (const w of wallets) {
+    const opening = computeOpeningBalance(w.id);
+    let running = opening;
+
+    // Ambil transaksi dompet ini (hanya in/out yang memengaruhi saldo)
+    const list = txs
+      .filter(t => t.walletId === w.id && (t.type === "in" || t.type === "out"))
+      .slice()
+      .sort((a, b) => new Date(a.date) - new Date(b.date)); // urut kronologis
+
+    const rows = [];
+    rows.push({
+      Tanggal: "", Keterangan: "Saldo Awal", Debit: 0, Kredit: 0, Saldo: running, Ref: ""
+    });
+
+    let totalDebit = 0, totalKredit = 0;
+
+    for (const t of list) {
+      const isIn = t.type === "in";
+      const isOut = t.type === "out";
+      const debit = isIn ? Number(t.amount || 0) : 0;
+      const kredit = isOut ? Number(t.amount || 0) : 0;
+      running += (debit - kredit);
+
+      const ket = `${t.category && t.category.trim() ? t.category.trim() : "Tanpa Kategori"}${t.note ? " — " + t.note : ""}`;
+
+      rows.push({
+        Tanggal: toISO(t.date),
+        Keterangan: ket,
+        Debit: debit,
+        Kredit: kredit,
+        Saldo: running,
+        Ref: t.id
+      });
+
+      totalDebit += debit;
+      totalKredit += kredit;
+    }
+
+    // Baris total
+    rows.push({
+      Tanggal: "", Keterangan: "TOTAL", Debit: totalDebit, Kredit: totalKredit, Saldo: running, Ref: ""
+    });
+
+    // Buat sheet + kolom lebar
+    // const ws = XLSX.utils.json_to_sheet(rows, { header: ["Tanggal", "Keterangan", "Debit", "Kredit", "Saldo", "Ref"] });
+    // const colWidths = [
+    //   { wch: 12 },  // Tanggal
+    //   { wch: 40 },  // Keterangan
+    //   { wch: 14 },  // Debit
+    //   { wch: 14 },  // Kredit
+    //   { wch: 14 },  // Saldo
+    //   { wch: 24 },  // Ref
+    // ];
+    // ws["!cols"] = colWidths;
+
+    // // Tambahkan 2 baris header info dompet di atas (judul + meta)
+    // const title = [`Buku Besar — ${w.name}`, "", "", "", "", ""];
+    // const meta = [`Tema: ${w.theme} | Ikon: ${w.icon}`, "", "", "", "", ""];
+    // XLSX.utils.sheet_add_aoa(ws, [title, meta, []], { origin: "A1" });
+    // // Geser tabel agar mulai baris 4
+    // XLSX.utils.sheet_add_json(ws, rows, { origin: "A4", skipHeader: false });
+
+    // --- Header judul & meta (baris 1-3) ---
+const title = [`Buku Besar — ${w.name}`, "", "", "", "", ""];
+const meta  = [`Tema: ${w.theme} | Ikon: ${w.icon}`, "", "", "", "", ""];
+
+// Mulai sheet dari judul (tanpa tabel dulu)
+const ws = XLSX.utils.aoa_to_sheet([title, meta, []]);
+
+// --- Tabel data: tulis SEKALI mulai A4 ---
+XLSX.utils.sheet_add_json(ws, rows, {
+  origin: "A4",
+  header: ["Tanggal","Keterangan","Debit","Kredit","Saldo","Ref"],
+  skipHeader: false
+});
+
+// Lebar kolom
+ws["!cols"] = [
+  { wch: 12 },  // Tanggal
+  { wch: 40 },  // Keterangan
+  { wch: 14 },  // Debit
+  { wch: 14 },  // Kredit
+  { wch: 14 },  // Saldo
+  { wch: 24 },  // Ref
+];
+
+// Tambahkan ke workbook
+// XLSX.utils.book_append_sheet(wb, ws, safeSheetName(`WL - ${w.name}`));
+
+
+    // Nama sheet aman
+    const sheetName = safeSheetName(`WL - ${w.name}`);
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+    // Tambah ke ringkasan
+    summaryRows.push({
+      Dompet: w.name,
+      "Saldo Awal": opening,
+      "Total Debit": totalDebit,
+      "Total Kredit": totalKredit,
+      "Saldo Akhir": running
+    });
+    grandOpen += opening;
+    grandDebit += totalDebit;
+    grandKredit += totalKredit;
+    grandAkhir += running;
+  }
+
+  // Tambah baris total ringkasan
+  summaryRows.push({
+    Dompet: "TOTAL",
+    "Saldo Awal": grandOpen,
+    "Total Debit": grandDebit,
+    "Total Kredit": grandKredit,
+    "Saldo Akhir": grandAkhir
   });
 
+  // Sheet RINGKASAN
+  const wsSummary = XLSX.utils.json_to_sheet(summaryRows, { header: ["Dompet", "Saldo Awal", "Total Debit", "Total Kredit", "Saldo Akhir"] });
+  wsSummary["!cols"] = [{ wch: 24 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, safeSheetName("Ringkasan"));
+
+  // Sheet HUTANG (global, tidak memengaruhi saldo dompet)
+  const debts = txs.filter(t => t.type === "debt");
+  const debtRows = debts.length ? debts.map(t => {
+    const w = wallets.find(x => x.id === t.walletId);
+    return {
+      Tanggal: toISO(t.date),
+      Dompet: w ? w.name : "(tidak ditemukan)",
+      Kategori: t.category || "Hutang",
+      Keterangan: t.note || "",
+      Nominal: Number(t.amount || 0),
+      Ref: t.id
+    };
+  }) : [{ Tanggal: "", Dompet: "", Kategori: "", Keterangan: "(Tidak ada data hutang)", Nominal: 0, Ref: "" }];
+  const wsDebt = XLSX.utils.json_to_sheet(debtRows, { header: ["Tanggal", "Dompet", "Kategori", "Keterangan", "Nominal", "Ref"] });
+  wsDebt["!cols"] = [{ wch: 12 }, { wch: 24 }, { wch: 16 }, { wch: 40 }, { wch: 14 }, { wch: 24 }];
+  XLSX.utils.book_append_sheet(wb, wsDebt, safeSheetName("Hutang"));
+
+  // Tanggal file
   const ts = new Date().toISOString().replace(/[:T]/g, "-").slice(0, 16);
-  XLSX.writeFile(wb, `FinNote-Export-${ts}.xlsx`);
+  XLSX.writeFile(wb, `FinNote-Ledger-${ts}.xlsx`);
 }
+
 
 /* ===== Backup (.json) & Restore (merge) ===== */
 function makeBackupPayload() {
@@ -679,74 +830,67 @@ function isValidBackup(json) {
     Array.isArray(json.txs)
   );
 }
-async function handleRestoreJSONFile(file){
+// REPLACE PENUH: menimpa semua data dengan isi cadangan
+async function handleRestoreJSONFile(file) {
   if (!file) return;
-  try{
+  try {
     const text = await file.text();
     const data = JSON.parse(text);
-    if (!isValidBackup(data)) { alert('File cadangan tidak valid.'); return; }
+
+    if (!isValidBackup(data)) {
+      alert("File cadangan tidak valid.");
+      return;
+    }
 
     const ok = confirm(
-      'Pulihkan data dari cadangan?\n\n' +
-      'Catatan:\n' +
-      '- Data AKAN DIGABUNGKAN (merge), bukan ditimpa.\n' +
-      '- Wallet & transaksi baru TETAP DIPERTAHANKAN.\n' +
-      '- Transaksi dari cadangan yang belum ada akan ditambahkan.'
+      "Pulihkan data dari cadangan?\n\n" +
+      "MODE: REPLACE PENUH (ditimpa)\n" +
+      "- Seluruh data saat ini akan DIGANTI dengan isi cadangan.\n" +
+      "- Ini mencegah saldo dobel.\n\n" +
+      "Lanjutkan?"
     );
     if (!ok) return;
 
-    if ((!displayName || displayName === 'User') &&
-        typeof data.displayName === 'string' && data.displayName.trim()){
-      displayName = data.displayName.trim().replace(/^"(.*)"$/, '$1');
-      localStorage.setItem(LS_NAME, displayName);
-    }
+    // 1) Timpa state dari backup (JANGAN applyTxEffect di sini!)
+    displayName = (typeof data.displayName === "string" && data.displayName.trim())
+      ? data.displayName.trim().replace(/^"(.*)"$/, "$1")
+      : "User";
 
-    const backupWallets = Array.isArray(data.wallets) ? data.wallets : [];
-    const currentWIds = new Set(wallets.map(w => w.id));
-    const toAddWallets = backupWallets.filter(w => w && w.id && !currentWIds.has(w.id));
-    if (toAddWallets.length) wallets = wallets.concat(toAddWallets);
+    wallets = Array.isArray(data.wallets) ? data.wallets : [];
+    cats = data.cats && Array.isArray(data.cats.income) && Array.isArray(data.cats.expense)
+      ? { income: data.cats.income, expense: data.cats.expense }
+      : { income: [], expense: [] };
+    txs = Array.isArray(data.txs) ? data.txs : [];
 
-    const incSet = new Set([...(cats.income || []), ...(((data.cats || {}).income) || [])]);
-    const expSet = new Set([...(cats.expense || []), ...(((data.cats || {}).expense) || [])]);
-    cats = { income: Array.from(incSet), expense: Array.from(expSet) };
-
-    const backupTxs = Array.isArray(data.txs) ? data.txs : [];
-    const currentTxIds = new Set(txs.map(t => t.id));
-    const newTxs = [];
-    for (const t of backupTxs){
-      if (!t || !t.id) continue;
-      if (!currentTxIds.has(t.id)){
-        txs.push(t);
-        newTxs.push(t);
-        applyTxEffect(t);
-      }
-    }
-
+    // 2) Simpan ke localStorage
+    localStorage.setItem(LS_NAME, displayName);
     save(LS_WALLETS, wallets);
     save(LS_CATS, cats);
     save(LS_TX, txs);
 
-    renderAll();
-    alert(
-      'Pemulihan selesai (merge).\n' +
-      `Wallet baru ditambahkan: ${toAddWallets.length}\n` +
-      `Transaksi baru digabungkan: ${newTxs.length}`
-    );
+    // 3) Reset filter/seleksi yang mungkin tidak valid
+    statsWalletId = "all";
+    historyFilter = null;
 
-    $('#tab-home').checked = true;
+    // 4) Render ulang UI
+    renderAll();
+
+    alert("Data berhasil dipulihkan.");
+    $("#tab-home").checked = true;
     onTabChange();
-  }catch(e){
+  } catch (e) {
     console.error(e);
-    alert('Gagal memulihkan. Pastikan file .json asli dari cadangan aplikasi ini.');
+    alert("Gagal memulihkan. Pastikan file .json asli dari cadangan aplikasi ini.");
   }
 }
+
 
 /* ===== Smooth UX: screen activation + stagger ===== */
 function animateCurrentScreen() {
   $$(".screen").forEach((s) => s.classList.remove("is-active"));
   const activeId = $("#tab-home").checked ? "home" :
-                   $("#tab-wallet").checked ? "wallet" :
-                   $("#tab-stats").checked ? "stats" : "settings";
+    $("#tab-wallet").checked ? "wallet" :
+      $("#tab-stats").checked ? "stats" : "settings";
   const scr = document.getElementById(activeId);
   if (!scr) return;
   scr.classList.add("is-active");
@@ -769,9 +913,9 @@ function updateFabForTab() {
   const fab = $("#btnFabTx");
   if (!fab) return;
 
-  const isHome    = $("#tab-home").checked;
-  const isWallet  = $("#tab-wallet").checked;
-  const isStats   = $("#tab-stats").checked;
+  const isHome = $("#tab-home").checked;
+  const isWallet = $("#tab-wallet").checked;
+  const isStats = $("#tab-stats").checked;
   const isSetting = $("#tab-settings").checked;
 
   fab.onclick = null;
@@ -820,9 +964,9 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#btnSaveWallet")?.addEventListener("click", saveWalletFromModal);
   $("#walletList")?.addEventListener("click", (e) => {
     const editBtn = e.target.closest?.('[data-action="edit"]');
-    const delBtn  = e.target.closest?.('[data-action="del"]');
+    const delBtn = e.target.closest?.('[data-action="del"]');
     if (editBtn) { const id = editBtn.dataset.id; if (id) openWalletModalEdit(id); return; }
-    if (delBtn)  { const id = delBtn.dataset.id;  if (id) doDeleteWallet(id); }
+    if (delBtn) { const id = delBtn.dataset.id; if (id) doDeleteWallet(id); }
   });
 
   // Tx actions
@@ -835,14 +979,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = row.getAttribute("data-txid");
     if (!id) return;
     if (btn.dataset.action === "edit") openTxModalEdit(id);
-    if (btn.dataset.action === "del")  doDeleteTx(id, true);
+    if (btn.dataset.action === "del") doDeleteTx(id, true);
   });
 
   // History filters
-  $("#hfAll") ?.addEventListener("click", () => { historyFilter = null;  renderRecentTx(); });
-  $("#hfIn")  ?.addEventListener("click", () => { historyFilter = "in";  renderRecentTx(); });
-  $("#hfOut") ?.addEventListener("click", () => { historyFilter = "out"; renderRecentTx(); });
-  $("#hfDebt")?.addEventListener("click", () => { historyFilter = "debt";renderRecentTx(); });
+  $("#hfAll")?.addEventListener("click", () => { historyFilter = null; renderRecentTx(); });
+  $("#hfIn")?.addEventListener("click", () => { historyFilter = "in"; renderRecentTx(); });
+  $("#hfOut")?.addEventListener("click", () => { historyFilter = "out"; renderRecentTx(); });
+  $("#hfDebt")?.addEventListener("click", () => { historyFilter = "debt"; renderRecentTx(); });
 
   // Stats
   $("#statsWallet")?.addEventListener("change", (e) => { statsWalletId = e.target.value || "all"; renderStats(); });
@@ -860,14 +1004,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Period (Bulanan/Tahunan)
-  function setStatsPeriod(p){
+  function setStatsPeriod(p) {
     statsPeriod = p;
     $('#periodMonthly')?.classList.toggle('active', p === 'month');
-    $('#periodYearly') ?.classList.toggle('active', p === 'year');
+    $('#periodYearly')?.classList.toggle('active', p === 'year');
     renderStats();
   }
-  $('#periodMonthly')?.addEventListener('click', ()=>setStatsPeriod('month'));
-  $('#periodYearly') ?.addEventListener('click', ()=>setStatsPeriod('year'));
+  $('#periodMonthly')?.addEventListener('click', () => setStatsPeriod('month'));
+  $('#periodYearly')?.addEventListener('click', () => setStatsPeriod('year'));
   setStatsPeriod(statsPeriod); // set awal
 
   // Categories
@@ -905,7 +1049,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Tag type
-  $("#tagIn")  ?.addEventListener("click", () => setTxType("in"));
-  $("#tagOut") ?.addEventListener("click", () => setTxType("out"));
+  $("#tagIn")?.addEventListener("click", () => setTxType("in"));
+  $("#tagOut")?.addEventListener("click", () => setTxType("out"));
   $("#tagDebt")?.addEventListener("click", () => setTxType("debt"));
 });
