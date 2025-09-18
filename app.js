@@ -18,6 +18,43 @@ const fmtIDR = (n) =>
     minimumFractionDigits: 0,
   }).format(Number(n || 0));
 
+  // === Batas karakter untuk nominal ===
+const MAX_CHARS_TOTAL  = 14; // total saldo (atas)
+const MAX_CHARS_WALLET = 14; // nominal per dompet (home & wallet)
+const MAX_CHARS_TX     = 14; // nominal di riwayat transaksi
+
+function clampText(text, max) {
+  const s = String(text ?? "");
+  return s.length > max ? s.slice(0, Math.max(0, max - 1)) + "…" : s;
+}
+
+function applyAmountCharClamp() {
+  // Total saldo
+  const tb = $("#totalBalance");
+  if (tb) {
+    const full = tb.dataset.full || tb.textContent || "";
+    tb.title = full;
+    tb.textContent = (tb.textContent.trim() === "•••••")
+      ? "•••••"
+      : clampText(full, MAX_CHARS_TOTAL);
+  }
+
+  // Nominal per dompet (Home & Wallet) — pakai class .amount
+  $$(".amount").forEach(el => {
+    const masked = el.textContent.trim() === "•••••";
+    const full = el.getAttribute("data-full") || el.textContent || "";
+    el.title = full;
+    el.textContent = masked ? "•••••" : clampText(full, MAX_CHARS_WALLET);
+  });
+
+  // Nominal di riwayat transaksi — pakai class .tx-amount
+  $$(".tx-amount").forEach(el => {
+    const full = el.getAttribute("data-full") || el.textContent || "";
+    el.title = full;
+    el.textContent = clampText(full, MAX_CHARS_TX);
+  });
+}
+
 const fmtDate = (iso) =>
   iso
     ? new Date(iso).toLocaleDateString("id-ID", {
@@ -92,35 +129,74 @@ function renderName() {
 }
 
 /* ===== Render: Home/Summary ===== */
+// function renderSummary() {
+//   const total = wallets.reduce((a, w) => a + (+w.balance || 0), 0);
+//   $("#totalBalance").textContent = hideTotal ? "•••••" : fmtIDR(total);
+//   $("#summaryText").textContent = `Ringkasan dari ${wallets.length} dompet aktif`;
+//   $("#walletCountHint").textContent = wallets.length ? `• ${wallets.length} dompet` : "";
+// }
+
 function renderSummary() {
   const total = wallets.reduce((a, w) => a + (+w.balance || 0), 0);
-  $("#totalBalance").textContent = hideTotal ? "•••••" : fmtIDR(total);
+  const full = fmtIDR(total);
+  const el = $("#totalBalance");
+  el.dataset.full = full;
+  el.textContent = hideTotal ? "•••••" : full;
+
   $("#summaryText").textContent = `Ringkasan dari ${wallets.length} dompet aktif`;
   $("#walletCountHint").textContent = wallets.length ? `• ${wallets.length} dompet` : "";
 }
 
+
+// function walletItemHTML(w) {
+//   return `<div class="wallet-item" data-id="${w.id}">
+//     <div class="wallet-left">
+//       <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(w.icon)}"></i></div>
+//       <div class="wallet-meta"><b>${w.name}</b><small>${w.note || ""}</small></div>
+//     </div>
+//     <div class="wallet-actions">
+//       <span class="pill">${fmtIDR(w.balance)}</span>
+//       <button class="btn-mini" data-action="edit" data-id="${w.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
+//       <button class="btn-del"  data-action="del"  data-id="${w.id}" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+//     </div>
+//   </div>`;
+// }
+
 function walletItemHTML(w) {
+  const full = fmtIDR(w.balance);
   return `<div class="wallet-item" data-id="${w.id}">
     <div class="wallet-left">
       <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(w.icon)}"></i></div>
       <div class="wallet-meta"><b>${w.name}</b><small>${w.note || ""}</small></div>
     </div>
     <div class="wallet-actions">
-      <span class="pill">${fmtIDR(w.balance)}</span>
+      <span class="pill amount" data-full="${full}">${full}</span>
       <button class="btn-mini" data-action="edit" data-id="${w.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
       <button class="btn-del"  data-action="del"  data-id="${w.id}" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
     </div>
   </div>`;
 }
 
+
 /* Saldo per dompet di HOME */
+// function walletItemHomeHTML(w) {
+//   return `<div class="wallet-item wallet-item-home" data-id="${w.id}" style="cursor:pointer">
+//     <div class="wallet-left">
+//       <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(w.icon)}"></i></div>
+//       <div class="wallet-meta"><b>${w.name}</b><small>${w.note || ""}</small></div>
+//     </div>
+//     <div class="pill">${hideWallets ? "•••••" : fmtIDR(w.balance)}</div>
+//   </div>`;
+// }
+
 function walletItemHomeHTML(w) {
+  const full = fmtIDR(w.balance);
   return `<div class="wallet-item wallet-item-home" data-id="${w.id}" style="cursor:pointer">
     <div class="wallet-left">
       <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(w.icon)}"></i></div>
       <div class="wallet-meta"><b>${w.name}</b><small>${w.note || ""}</small></div>
     </div>
-    <div class="pill">${hideWallets ? "•••••" : fmtIDR(w.balance)}</div>
+    <div class="pill amount" data-full="${full}">${hideWallets ? "•••••" : full}</div>
   </div>`;
 }
 
@@ -154,13 +230,38 @@ function syncEyeIcons() {
   if (d) d.className = hideDebt ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
 }
 
+// function recentTxItemHTML(t) {
+//   const sign = t.type === "in" ? "+" : t.type === "out" ? "-" : "";
+//   const cls = t.type === "in" ? "plus" : t.type === "out" ? "minus" : "";
+//   const w = wallets.find((x) => x.id === t.walletId);
+//   const walletName = w ? w.name : "—";
+//   const cat = t.type === "debt" ? (t.category || "Hutang") : (t.category || "Tanpa Kategori");
+//   const icon = t.type === "debt" ? "fa-hand-holding-dollar" : (t.type === "in" ? "fa-arrow-down" : "fa-arrow-up");
+//   return `<div class="tx" data-txid="${t.id}">
+//     <div class="tx-info">
+//       <div class="ico"><i class="fa-solid ${icon}"></i></div>
+//       <div>
+//         <div class="tx-title">${cat}</div>
+//         <div class="tx-meta">${fmtDate(t.date)} • ${walletName}${t.note ? " • " + t.note : ""}</div>
+//       </div>
+//     </div>
+//     <div class="tx-actions">
+//       <span class="tx-amount ${cls}">${sign}${fmtIDR(t.amount)}</span>
+//       <button class="btn-mini" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button>
+//       <button class="btn-mini" data-action="del"  title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+//     </div>
+//   </div>`;
+// }
+
 function recentTxItemHTML(t) {
   const sign = t.type === "in" ? "+" : t.type === "out" ? "-" : "";
-  const cls = t.type === "in" ? "plus" : t.type === "out" ? "minus" : "";
+  const cls  = t.type === "in" ? "plus" : t.type === "out" ? "minus" : "";
   const w = wallets.find((x) => x.id === t.walletId);
   const walletName = w ? w.name : "—";
   const cat = t.type === "debt" ? (t.category || "Hutang") : (t.category || "Tanpa Kategori");
   const icon = t.type === "debt" ? "fa-hand-holding-dollar" : (t.type === "in" ? "fa-arrow-down" : "fa-arrow-up");
+  const fullAmount = `${sign}${fmtIDR(t.amount)}`;
+
   return `<div class="tx" data-txid="${t.id}">
     <div class="tx-info">
       <div class="ico"><i class="fa-solid ${icon}"></i></div>
@@ -170,12 +271,14 @@ function recentTxItemHTML(t) {
       </div>
     </div>
     <div class="tx-actions">
-      <span class="tx-amount ${cls}">${sign}${fmtIDR(t.amount)}</span>
+      <span class="tx-amount ${cls}" data-full="${fullAmount}">${fullAmount}</span>
       <button class="btn-mini" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button>
       <button class="btn-mini" data-action="del"  title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
     </div>
   </div>`;
 }
+
+
 function renderRecentTx() {
   const wrap = $("#recentTx");
   if (!txs.length) { wrap.innerHTML = `<div class="hint">Belum ada transaksi.</div>`; return; }
@@ -196,6 +299,8 @@ function renderAll() {
   renderRecentTx();
   renderStats();
   animateCurrentScreen();
+
+  applyAmountCharClamp();
 }
 
 /* ===== Modal helpers ===== */

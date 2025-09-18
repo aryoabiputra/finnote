@@ -955,11 +955,13 @@ main {
 .wallet-meta small,
 .tx-title,
 .catitem > div {
-  max-width: 180px;       /* sesuaikan lebar maksimal */
+  max-width: 103px;       /* sesuaikan lebar maksimal */
   white-space: nowrap;    /* jangan pindah baris */
   overflow: hidden;       /* sembunyikan teks berlebih */
   text-overflow: ellipsis;/* tampilkan ... */
   display: inline-block;  /* pastikan properti berlaku */
   vertical-align: middle;
 }
+
+
 
