@@ -1,5 +1,34 @@
+/* ===== Build Version Gate (Anti-cache) ===== */
+const BUILD_VER = "1.2"; // samakan dengan query ?v= di index.html
+(function ensureFreshOnVersionChange() {
+  try {
+    const KEY = "__build_ver_seen__";
+    const last = sessionStorage.getItem(KEY);
+    if (last !== BUILD_VER) {
+      sessionStorage.setItem(KEY, BUILD_VER);
+      // Tambahkan ?v=BUILD_VER ke URL halaman supaya semua fetch ikut bust cache
+      const url = new URL(location.href);
+      if (url.searchParams.get("v") !== BUILD_VER) {
+        url.searchParams.set("v", BUILD_VER);
+        location.replace(url.toString());
+        return;
+      }
+      // Bersihkan Cache Storage (kalau ada SW/Cache API) agar aset lama tidak dipakai
+      if (window.caches?.keys) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+      // Trigger SW update jika ada
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update()));
+      }
+    }
+  } catch { }
+})();
+
 /* ===== Keys & Utils ===== */
-const APP_VERSION = "1.1";
+// const APP_VERSION = "1.2";
+const APP_VERSION = String(window.BUILD_VER || "0"); // ikut index.html
+
 const LS_WALLETS = "fin_wallets";
 const LS_CATS = "fin_categories";
 const LS_TX = "fin_transactions";
@@ -18,10 +47,10 @@ const fmtIDR = (n) =>
     minimumFractionDigits: 0,
   }).format(Number(n || 0));
 
-  // === Batas karakter untuk nominal ===
-const MAX_CHARS_TOTAL  = 14; // total saldo (atas)
+// === Batas karakter untuk nominal ===
+const MAX_CHARS_TOTAL = 14; // total saldo (atas)
 const MAX_CHARS_WALLET = 14; // nominal per dompet (home & wallet)
-const MAX_CHARS_TX     = 14; // nominal di riwayat transaksi
+const MAX_CHARS_TX = 14; // nominal di riwayat transaksi
 
 function clampText(text, max) {
   const s = String(text ?? "");
@@ -255,7 +284,7 @@ function syncEyeIcons() {
 
 function recentTxItemHTML(t) {
   const sign = t.type === "in" ? "+" : t.type === "out" ? "-" : "";
-  const cls  = t.type === "in" ? "plus" : t.type === "out" ? "minus" : "";
+  const cls = t.type === "in" ? "plus" : t.type === "out" ? "minus" : "";
   const w = wallets.find((x) => x.id === t.walletId);
   const walletName = w ? w.name : "—";
   const cat = t.type === "debt" ? (t.category || "Hutang") : (t.category || "Tanpa Kategori");
@@ -817,31 +846,31 @@ function exportToExcel() {
     // XLSX.utils.sheet_add_json(ws, rows, { origin: "A4", skipHeader: false });
 
     // --- Header judul & meta (baris 1-3) ---
-const title = [`Buku Besar — ${w.name}`, "", "", "", "", ""];
-const meta  = [`Tema: ${w.theme} | Ikon: ${w.icon}`, "", "", "", "", ""];
+    const title = [`Buku Besar — ${w.name}`, "", "", "", "", ""];
+    const meta = [`Tema: ${w.theme} | Ikon: ${w.icon}`, "", "", "", "", ""];
 
-// Mulai sheet dari judul (tanpa tabel dulu)
-const ws = XLSX.utils.aoa_to_sheet([title, meta, []]);
+    // Mulai sheet dari judul (tanpa tabel dulu)
+    const ws = XLSX.utils.aoa_to_sheet([title, meta, []]);
 
-// --- Tabel data: tulis SEKALI mulai A4 ---
-XLSX.utils.sheet_add_json(ws, rows, {
-  origin: "A4",
-  header: ["Tanggal","Keterangan","Debit","Kredit","Saldo","Ref"],
-  skipHeader: false
-});
+    // --- Tabel data: tulis SEKALI mulai A4 ---
+    XLSX.utils.sheet_add_json(ws, rows, {
+      origin: "A4",
+      header: ["Tanggal", "Keterangan", "Debit", "Kredit", "Saldo", "Ref"],
+      skipHeader: false
+    });
 
-// Lebar kolom
-ws["!cols"] = [
-  { wch: 12 },  // Tanggal
-  { wch: 40 },  // Keterangan
-  { wch: 14 },  // Debit
-  { wch: 14 },  // Kredit
-  { wch: 14 },  // Saldo
-  { wch: 24 },  // Ref
-];
+    // Lebar kolom
+    ws["!cols"] = [
+      { wch: 12 },  // Tanggal
+      { wch: 40 },  // Keterangan
+      { wch: 14 },  // Debit
+      { wch: 14 },  // Kredit
+      { wch: 14 },  // Saldo
+      { wch: 24 },  // Ref
+    ];
 
-// Tambahkan ke workbook
-// XLSX.utils.book_append_sheet(wb, ws, safeSheetName(`WL - ${w.name}`));
+    // Tambahkan ke workbook
+    // XLSX.utils.book_append_sheet(wb, ws, safeSheetName(`WL - ${w.name}`));
 
 
     // Nama sheet aman
