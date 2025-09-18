@@ -57,32 +57,54 @@ function clampText(text, max) {
   return s.length > max ? s.slice(0, Math.max(0, max - 1)) + "…" : s;
 }
 
-function applyAmountCharClamp() {
-  // Total saldo
-  const tb = $("#totalBalance");
-  if (tb) {
-    const full = tb.dataset.full || tb.textContent || "";
-    tb.title = full;
-    tb.textContent = (tb.textContent.trim() === "•••••")
-      ? "•••••"
-      : clampText(full, MAX_CHARS_TOTAL);
-  }
+// function applyAmountCharClamp() {
+//   // Total saldo
+//   const tb = $("#totalBalance");
+//   if (tb) {
+//     const full = tb.dataset.full || tb.textContent || "";
+//     tb.title = full;
+//     tb.textContent = (tb.textContent.trim() === "•••••")
+//       ? "•••••"
+//       : clampText(full, MAX_CHARS_TOTAL);
+//   }
 
-  // Nominal per dompet (Home & Wallet) — pakai class .amount
-  $$(".amount").forEach(el => {
-    const masked = el.textContent.trim() === "•••••";
+//   // Nominal per dompet (Home & Wallet) — pakai class .amount
+//   $$(".amount").forEach(el => {
+//     const masked = el.textContent.trim() === "•••••";
+//     const full = el.getAttribute("data-full") || el.textContent || "";
+//     el.title = full;
+//     el.textContent = masked ? "•••••" : clampText(full, MAX_CHARS_WALLET);
+//   });
+
+//   // Nominal di riwayat transaksi — pakai class .tx-amount
+//   $$(".tx-amount").forEach(el => {
+//     const full = el.getAttribute("data-full") || el.textContent || "";
+//     el.title = full;
+//     el.textContent = clampText(full, MAX_CHARS_TX);
+//   });
+// }
+
+function applyAmountCharClamp() {
+  // ⚠️ Total saldo: biarkan apa adanya (tidak di-clamp)
+
+  // Nominal per dompet (Home & Wallet) — class .amount atau .pill
+  $$(".amount, .wallet-item .pill, .wallet-item-home .pill").forEach(el => {
+    if (el.textContent.trim() === "•••••") return; // jika disembunyikan
     const full = el.getAttribute("data-full") || el.textContent || "";
+    const MAX = 14; // batas karakter untuk tampilan (boleh ubah)
     el.title = full;
-    el.textContent = masked ? "•••••" : clampText(full, MAX_CHARS_WALLET);
+    el.textContent = full.length > MAX ? (full.slice(0, MAX - 1) + "…") : full;
   });
 
-  // Nominal di riwayat transaksi — pakai class .tx-amount
+  // Nominal di riwayat transaksi — class .tx-amount
   $$(".tx-amount").forEach(el => {
     const full = el.getAttribute("data-full") || el.textContent || "";
+    const MAX = 14;
     el.title = full;
-    el.textContent = clampText(full, MAX_CHARS_TX);
+    el.textContent = full.length > MAX ? (full.slice(0, MAX - 1) + "…") : full;
   });
 }
+
 
 const fmtDate = (iso) =>
   iso

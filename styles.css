@@ -224,7 +224,7 @@ main {
 
 .balance-amount {
   margin: 6px 0 2px;
-  font-size: 30px;
+  font-size: 23px;
   font-weight: 800;
   letter-spacing: 0.3px;
   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
@@ -1072,3 +1072,179 @@ main {
   /* pastikan properti berlaku */
   vertical-align: middle;
 }
+
+/* ======= CARD: samakan ukuran & cegah melebar (HOME & WALLET) ======= */
+#home .card,
+#wallet .card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;            /* jaga isi tak keluar card */
+}
+
+/* Baris dompet (Home & Wallet) dibuat grid stabil: icon | teks | nominal */
+#home .wallet-item-home,
+#wallet .wallet-item {
+  display: grid;
+  grid-template-columns: auto 1fr minmax(0, 42vw); /* nominal dibatasi 42% layar */
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Kolom kiri: icon + teks */
+#home .wallet-item-home .wallet-left,
+#wallet .wallet-item .wallet-left {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;               /* penting agar teks bisa menyusut */
+}
+
+/* Teks nama & keterangan: ellipsis saja */
+#home .wallet-item-home .wallet-meta,
+#wallet .wallet-item .wallet-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+#home .wallet-item-home .wallet-meta b,
+#home .wallet-item-home .wallet-meta small,
+#wallet .wallet-item .wallet-meta b,
+#wallet .wallet-item .wallet-meta small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Nominal kanan: jangan dorong lebar card + ellipsis aman */
+#home .wallet-item-home .pill,
+#wallet .wallet-item .pill {
+  justify-self: end;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Riwayat transaksi (Home) anti lebar */
+#home .tx { width: 100%; max-width: 100%; box-sizing: border-box; }
+#home .tx .tx-info { min-width: 0; }
+#home .tx .tx-info > div { min-width: 0; }
+#home .tx .tx-title,
+#home .tx .tx-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#home .tx .tx-actions { min-width: 0; }
+#home .tx .tx-amount {
+  max-width: 42vw;            /* batasi porsi layar untuk angka */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hindari scroll horizontal di seluruh halaman (cadangan) */
+html, body { overflow-x: hidden; }
+
+/* ======= TOTAL SALDO: jangan dipotong, rapatkan ke ikon mata ======= */
+/* Bikin baris total saldo & ikon lebih rapat dan rata tengah */
+#totalBalance, #toggleTotal {
+  vertical-align: middle;
+}
+
+/* Kurangi ruang sekitar ikon mata */
+#toggleTotal {
+  padding: 2px 6px; /* sesuaikan selera */
+  margin-left: 4px; /* jarak kecil dari angka */
+}
+
+/* Jika total & ikon berada dalam kontainer yang sama, atur gap kecil */
+#summaryHeader, /* pakai kalau punya container ini */
+#home .summary, /* atau ini kalau ada */
+#home .balance-row /* atau ini, pilih yang ada di CSS kamu */ {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ===== FIX: item kanan (nominal / tombol) harus nempel ke kanan ===== */
+
+/* Card di Home & Wallet: ukuran konsisten + anti overflow */
+#home .card,
+#wallet .card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* SET 2 KOLOM SAJA: [kiri fleksibel] | [kanan auto] */
+#home .wallet-item-home,
+#wallet .wallet-item {
+  display: grid;
+  grid-template-columns: 1fr auto;   /* <-- perbaikan utama */
+  align-items: center;
+  gap: 12px;
+  padding-right: 12px;               /* gutter kanan card */
+}
+
+/* Kiri = icon + teks */
+#home .wallet-item-home .wallet-left,
+#wallet .wallet-item .wallet-left {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;                      /* biar ellipsis jalan */
+}
+
+/* Teks kiri boleh menyusut */
+#home .wallet-item-home .wallet-meta,
+#wallet .wallet-item .wallet-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+#home .wallet-item-home .wallet-meta b,
+#home .wallet-item-home .wallet-meta small,
+#wallet .wallet-item .wallet-meta b,
+#wallet .wallet-item .wallet-meta small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* KANAN: selalu nempel ke sisi kanan card */
+#home .wallet-item-home .pill {      /* nominal di Home */
+  justify-self: end;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 6px;                /* jarak aman dari tepi kanan */
+}
+#wallet .wallet-item .wallet-actions {   /* tombol & nominal di Wallet */
+  justify-self: end;                 /* dorong ke kanan */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 6px;                /* jarak aman dari tepi kanan */
+}
+#wallet .wallet-item .pill {         /* angka dalam actions */
+  max-width: 40vw;                   /* jangan bisa melar */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Cadangan: jangan ada scroll horizontal */
+html, body { overflow-x: hidden; }
+
