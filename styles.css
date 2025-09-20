@@ -1060,7 +1060,7 @@ main {
 .wallet-meta small,
 .tx-title,
 .catitem>div {
-  max-width: 103px;
+  max-width: 120px;
   /* sesuaikan lebar maksimal */
   white-space: nowrap;
   /* jangan pindah baris */
@@ -1248,3 +1248,18 @@ html, body { overflow-x: hidden; }
 /* Cadangan: jangan ada scroll horizontal */
 html, body { overflow-x: hidden; }
 
+/* Header tanggal untuk grup riwayat */
+.tx-date {
+  font-size: 13px;
+  margin: 6px 0 6px;
+  font-weight: 500;
+  letter-spacing: .2px;
+  opacity: .9;
+}
+
+/* Spasi antar grup tanggal */
+.tx-day + .tx-day {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(255,255,255,.06);
+}
