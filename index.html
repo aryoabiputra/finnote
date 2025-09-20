@@ -13,7 +13,7 @@
   <!-- Untuk Versi -->
   <script>
     // >>> CUKUP UBAH INI SAJA SETIAP RILIS <<<
-    window.BUILD_VER = "1.2";
+    window.BUILD_VER = "1.2.1";
     (function (v) {
       // styles.css?v=...
       var l = document.createElement("link");
@@ -327,10 +327,10 @@
           <span id="tagDebt" class="tagtype tag-debt" data-type="debt">Hutang</span>
         </div>
         <!-- Toggle arah hutang: Pinjam (+) / Bayar (−) -->
-<div class="segmented" id="debtDir" style="display:none">
-  <button id="debtPlus" class="seg active" data-sign="1">Pinjam (+)</button>
-  <button id="debtMinus" class="seg" data-sign="-1">Bayar (−)</button>
-</div>
+        <div class="segmented" id="debtDir" style="display:none">
+          <button id="debtPlus" class="seg active" data-sign="1">Pinjam (+)</button>
+          <button id="debtMinus" class="seg" data-sign="-1">Bayar (−)</button>
+        </div>
 
         <input id="inAmount" class="input" type="number" inputmode="numeric" placeholder="Nominal (contoh: 125000)" />
         <select id="inWallet" class="select"></select>

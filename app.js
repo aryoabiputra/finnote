@@ -205,14 +205,6 @@ function renderWallets() {
 }
 
 /* Hutang = tx.type === 'debt' */
-// function renderDebtSummary() {
-//   const debts = txs.filter((t) => t.type === "debt");
-//   const total = debts.reduce((a, b) => a + Number(b.amount || 0), 0);
-//   $("#debtTotal").textContent = hideDebt ? "•••••" : fmtIDR(total);
-//   $("#debtCountPill").textContent = `${debts.length} transaksi`;
-// }
-
-/* Hutang = tx.type === 'debt' */
 function renderDebtSummary() {
   const debts = txs.filter(t => t.type === "debt");
 
@@ -275,71 +267,6 @@ function syncEyeIcons() {
   if (d) d.className = hideDebt ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
 }
 
-// function recentTxItemHTML(t) {
-//   const sign = t.type === "in" ? "+" : t.type === "out" ? "-" : "";
-//   const cls = t.type === "in" ? "plus" : t.type === "out" ? "minus" : "";
-//   const w = wallets.find((x) => x.id === t.walletId);
-//   const walletName = w ? w.name : "—";
-//   const cat = t.type === "debt" ? (t.category || "Hutang") : (t.category || "Tanpa Kategori");
-//   const icon = t.type === "debt" ? "fa-hand-holding-dollar" : (t.type === "in" ? "fa-arrow-down" : "fa-arrow-up");
-//   const fullAmount = `${sign}${fmtIDR(t.amount)}`;
-
-//   return `<div class="tx" data-txid="${t.id}">
-//     <div class="tx-info">
-//       <div class="ico"><i class="fa-solid ${icon}"></i></div>
-//       <div>
-//         <div class="tx-title">${cat}</div>
-//         <div class="tx-meta">${fmtDate(t.date)} • ${walletName}${t.note ? " • " + t.note : ""}</div>
-//       </div>
-//     </div>
-//     <div class="tx-actions">
-//       <span class="tx-amount ${cls}" data-full="${fullAmount}">${fullAmount}</span>
-//       <button class="btn-mini" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button>
-//       <button class="btn-mini" data-action="del"  title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
-//     </div>
-//   </div>`;
-// }
-
-// function recentTxItemHTML(t) {
-//   const sign = t.type === "in" ? "+" : t.type === "out" ? "-" : "";
-//   const cls = t.type === "in" ? "plus" : t.type === "out" ? "minus" : "";
-//   const w = wallets.find((x) => x.id === t.walletId);
-//   const walletName = w ? w.name : "—";
-//   const cat = t.type === "debt" ? (t.category || "Hutang") : (t.category || "Tanpa Kategori");
-//   const icon = t.type === "debt" ? "fa-hand-holding-dollar" : (t.type === "in" ? "fa-arrow-down" : "fa-arrow-up");
-//   const fullAmount = `${sign}${fmtIDR(t.amount)}`;
-
-//   return `<div class="tx" data-txid="${t.id}" style="cursor:pointer">
-//     <div class="tx-info">
-//       <div class="ico"><i class="fa-solid ${icon}"></i></div>
-//       <div>
-//         <div class="tx-title">${cat}</div>
-//         <div class="tx-meta">${fmtDate(t.date)} • ${walletName}${t.note ? " • " + t.note : ""}</div>
-//       </div>
-//     </div>
-//     <span class="tx-amount ${cls}" data-full="${fullAmount}">${fullAmount}</span>
-//   </div>`;
-// }
-// function recentTxItemHTML(t) {
-//   const sign = t.type === "in" ? "+" : t.type === "out" ? "-" : "";
-//   const cls = t.type === "in" ? "plus" : t.type === "out" ? "minus" : "";
-//   const w = wallets.find((x) => x.id === t.walletId);
-//   const walletName = w ? w.name : "—";
-//   const cat = t.type === "debt" ? (t.category || "Hutang") : (t.category || "Tanpa Kategori");
-//   const icon = t.type === "debt" ? "fa-hand-holding-dollar" : (t.type === "in" ? "fa-arrow-down" : "fa-arrow-up");
-//   const fullAmount = `${sign}${fmtIDR(t.amount)}`;
-
-//   return `<div class="tx" data-txid="${t.id}" style="cursor:pointer">
-//     <div class="tx-info">
-//       <div class="ico"><i class="fa-solid ${icon}"></i></div>
-//       <div>
-//         <div class="tx-title">${cat}</div>
-//         <div class="tx-meta">${walletName}${t.note ? " • " + t.note : ""}</div>
-//       </div>
-//     </div>
-//     <span class="tx-amount ${cls}" data-full="${fullAmount}">${fullAmount}</span>
-//   </div>`;
-// }
 // Bangun 1 item transaksi (tanpa tanggal di dalam item)
 function recentTxItemHTML(t) {
   const sign = t.type === "in" ? "+" : t.type === "out" ? "-" : "";
@@ -369,65 +296,6 @@ function recentTxItemHTML(t) {
   </div>`;
 }
 
-// Render daftar riwayat transaksi, dikelompokkan per tanggal
-// function renderRecentTx() {
-//   const wrap = $("#recentTx");
-//   if (!txs.length) {
-//     wrap.innerHTML = `<div class="hint">Belum ada transaksi.</div>`;
-//     return;
-//   }
-
-//   // 1) Filter sesuai pilihan
-//   let list = [...txs];
-//   if (historyFilter === "in") list = list.filter((t) => t.type === "in");
-//   if (historyFilter === "out") list = list.filter((t) => t.type === "out");
-//   if (historyFilter === "debt") list = list.filter((t) => t.type === "debt");
-
-//   // 2) Buat map id → index untuk tau urutan input
-//   const idxMap = new Map(txs.map((t, i) => [t.id, i]));
-
-//   // 3) Sortir: tanggal terbaru dulu, lalu index terbaru dulu
-//   const sorted = list.sort((a, b) => {
-//     const da = new Date(a.date), db = new Date(b.date);
-//     if (db - da !== 0) return db - da;
-//     return (idxMap.get(b.id) ?? 0) - (idxMap.get(a.id) ?? 0);
-//   });
-
-//   // 4) Jika tidak ada filter, batasi 10 transaksi terbaru
-//   const limited = historyFilter ? sorted : sorted.slice(0, 10);
-
-//   // 5) Kelompokkan per-hari
-//   const byDay = new Map();
-//   for (const t of limited) {
-//     const d = new Date(t.date);
-//     const dayKey = d.toISOString().slice(0, 10); // YYYY-MM-DD
-//     if (!byDay.has(dayKey)) byDay.set(dayKey, []);
-//     byDay.get(dayKey).push(t);
-//   }
-
-//   // 6) Render tiap grup tanggal
-//   const sections = [];
-//   for (const [dayKey, items] of byDay.entries()) {
-//     const d = new Date(dayKey + "T00:00:00");
-//     const label = d.toLocaleDateString("id-ID", {
-//       day: "numeric",
-//       month: "long",
-//       year: "numeric",
-//     });
-//     const itemsHtml = items.map(recentTxItemHTML).join("");
-//     sections.push(
-//       `<div class="tx-day">
-//          <div class="tx-date">${label}</div>
-//          ${itemsHtml}
-//        </div>`
-//     );
-//   }
-
-//   wrap.innerHTML =
-//     sections.join("") ||
-//     `<div class="hint">Tidak ada transaksi sesuai filter.</div>`;
-// }
-
 // Klik baris transaksi => buka modal edit
 $("#recentTx")?.addEventListener("click", (e) => {
   const row = e.target.closest?.(".tx");
@@ -436,60 +304,6 @@ $("#recentTx")?.addEventListener("click", (e) => {
   if (id) openTxModalEdit(id);
 });
 
-
-// function renderRecentTx() {
-//   const wrap = $("#recentTx");
-//   if (!txs.length) { wrap.innerHTML = `<div class="hint">Belum ada transaksi.</div>`; return; }
-//   let list = [...txs];
-//   if (historyFilter === "in") list = list.filter((t) => t.type === "in");
-//   if (historyFilter === "out") list = list.filter((t) => t.type === "out");
-//   if (historyFilter === "debt") list = list.filter((t) => t.type === "debt");
-//   const sorted = list.sort((a, b) => new Date(b.date) - new Date(a.date));
-//   const limited = historyFilter ? sorted : sorted.slice(0, 10);
-//   wrap.innerHTML = limited.map(recentTxItemHTML).join("") || `<div class="hint">Tidak ada transaksi sesuai filter.</div>`;
-// }
-
-// function renderRecentTx() {
-//   const wrap = $("#recentTx");
-//   if (!txs.length) { wrap.innerHTML = `<div class="hint">Belum ada transaksi.</div>`; return; }
-
-//   // 1) Saring berdasarkan filter (Semua/In/Out/Debt)
-//   let list = [...txs];
-//   if (historyFilter === "in")  list = list.filter(t => t.type === "in");
-//   if (historyFilter === "out") list = list.filter(t => t.type === "out");
-//   if (historyFilter === "debt")list = list.filter(t => t.type === "debt");
-
-//   // 2) Urutkan terbaru -> lama
-//   const sorted = list.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-//   // 3) Jika tanpa filter, ambil 10 teratas (seperti sebelumnya)
-//   const limited = historyFilter ? sorted : sorted.slice(0, 10);
-
-//   // 4) Kelompokkan per-hari (YYYY-MM-DD)
-//   const byDay = new Map();
-//   for (const t of limited) {
-//     const d = new Date(t.date);
-//     const dayKey = d.toISOString().slice(0, 10);
-//     if (!byDay.has(dayKey)) byDay.set(dayKey, []);
-//     byDay.get(dayKey).push(t);
-//   }
-
-//   // 5) Render: header tanggal (id-ID) + daftar item hari itu
-//   const sections = [];
-//   for (const [dayKey, items] of byDay.entries()) {
-//     const d = new Date(dayKey + "T00:00:00");
-//     const label = d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
-//     const itemsHtml = items.map(recentTxItemHTML).join("");
-//     sections.push(
-//       `<div class="tx-day">
-//          <div class="tx-date">${label}</div>
-//          ${itemsHtml}
-//        </div>`
-//     );
-//   }
-
-//   wrap.innerHTML = sections.join("") || `<div class="hint">Tidak ada transaksi sesuai filter.</div>`;
-// }
 // Render daftar riwayat transaksi, dikelompokkan per tanggal
 function renderRecentTx() {
   const wrap = $("#recentTx");
@@ -741,39 +555,6 @@ function openTxModalCreate() {
   $("#btnDeleteTx").style.display = "none";
   openModal("#modalTx");
 }
-// function openTxModalEdit(txId) {
-//   const t = txs.find((x) => x.id === txId);
-//   if (!t) return;
-//   txMode = "edit";
-//   editingTxId = txId;
-//   $("#txModalTitle").textContent = "Edit Transaksi";
-//   setTxType(t.type);
-//   $("#inAmount").value = t.amount;
-//   fillTxWallet();
-//   $("#inWallet").value = t.walletId;
-//   fillTxCategory(t.category);
-//   $("#inNoteTx").value = t.note || "";
-//   $("#inDate").value = t.date;
-//   $("#btnDeleteTx").style.display = "inline-grid";
-//   openModal("#modalTx");
-// }
-
-// function openTxModalEdit(txId) {
-//   const t = txs.find((x) => x.id === txId);
-//   if (!t) return;
-//   txMode = "edit";
-//   editingTxId = txId;
-//   $("#txModalTitle").textContent = "Edit Transaksi";
-//   setTxType(t.type);               // ⬅️ ini yang otomatis sembunyikan dompet jika hutang
-//   $("#inAmount").value = t.amount;
-//   fillTxWallet();
-//   if (t.walletId) $("#inWallet").value = t.walletId; // ⬅️ jangan set jika hutang
-//   fillTxCategory(t.category);
-//   $("#inNoteTx").value = t.note || "";
-//   $("#inDate").value = t.date;
-//   $("#btnDeleteTx").style.display = "inline-grid";
-//   openModal("#modalTx");
-// }
 
 function openTxModalEdit(txId) {
   const t = txs.find((x) => x.id === txId);
@@ -802,7 +583,6 @@ function openTxModalEdit(txId) {
   openModal("#modalTx");
 }
 
-
 function reverseTxEffect(t) {
   if (t.type === "debt") return;
   const w = wallets.find((w) => w.id === t.walletId);
@@ -819,97 +599,6 @@ function applyEditWalletAdjustments(oldT, newT) {
   reverseTxEffect(oldT);
   applyTxEffect(newT);
 }
-// function saveTxFromModal() {
-//   const amount = Number($("#inAmount").value || 0);
-//   const walletId = $("#inWallet").value;
-//   const category = $("#inCategory").value;
-//   const note = $("#inNoteTx").value.trim();
-//   const date = $("#inDate").value || new Date().toISOString().slice(0, 10);
-//   if (!amount || amount <= 0) { alert("Nominal harus > 0"); return; }
-//   if (!walletId) { alert("Pilih dompet"); return; }
-
-//   if (txMode === "create") {
-//     const t = { id: uuid(), type: txType, amount, category, note, walletId, date };
-//     txs.push(t);
-//     applyTxEffect(t);
-//   } else {
-//     const idx = txs.findIndex((x) => x.id === editingTxId);
-//     if (idx < 0) { closeModal("#modalTx"); return; }
-//     const oldT = { ...txs[idx] };
-//     const newT = { ...oldT, type: txType, amount, category, note, walletId, date };
-//     applyEditWalletAdjustments(oldT, newT);
-//     txs[idx] = newT;
-//   }
-//   save(LS_TX, txs);
-//   save(LS_WALLETS, wallets);
-//   renderAll();
-//   closeModal("#modalTx");
-//   $("#tab-home").checked = true;
-//   onTabChange();
-//   updateFabForTab();
-// }
-
-// function saveTxFromModal() {
-//   const amountAbs = Number($("#inAmount").value || 0);
-//   const walletId = $("#inWallet").value;
-//   const category = $("#inCategory").value;
-//   const note = $("#inNoteTx").value.trim();
-//   const date = $("#inDate").value || new Date().toISOString().slice(0, 10);
-//   if (!amountAbs || amountAbs <= 0) { alert("Nominal harus > 0"); return; }
-//   if (!walletId) { alert("Pilih dompet"); return; }
-
-//   // tanda khusus hutang
-//   const amount = (txType === "debt") ? debtSign * amountAbs : amountAbs;
-
-//   if (txMode === "create") {
-//     const t = { id: uuid(), type: txType, amount, category, note, walletId, date };
-//     txs.push(t);
-//     applyTxEffect(t); // catatan: hutang tidak mempengaruhi saldo dompet di app kamu
-//   } else {
-//     const idx = txs.findIndex((x) => x.id === editingTxId);
-//     if (idx < 0) { closeModal("#modalTx"); return; }
-//     const oldT = { ...txs[idx] };
-//     const newT = { ...oldT, type: txType, amount, category, note, walletId, date };
-//     applyEditWalletAdjustments(oldT, newT);
-//     txs[idx] = newT;
-//   }
-//   save(LS_TX, txs);
-//   renderAll();
-//   closeModal("#modalTx");
-// }
-
-// function saveTxFromModal() {
-//   const amount = Number($("#inAmount").value || 0);
-//   const walletId = txType === "debt" ? null : $("#inWallet").value; // ⬅️ dompet opsional utk hutang
-//   const category = $("#inCategory").value;
-//   const note = $("#inNoteTx").value.trim();
-//   const date = $("#inDate").value || new Date().toISOString().slice(0, 10);
-
-//   if (!amount || amount <= 0) { alert("Nominal harus > 0"); return; }
-//   if (txType !== "debt" && !walletId) { alert("Pilih dompet"); return; } // ⬅️ validasi hanya utk in/out
-
-//   if (txMode === "create") {
-//     const t = { id: uuid(), type: txType, amount, category, note, date, ...(walletId ? { walletId } : {}) };
-//     txs.push(t);
-//     applyTxEffect(t); // hutang tetap tidak mengubah saldo (lihat fungsi applyTxEffect)
-//   } else {
-//     const idx = txs.findIndex((x) => x.id === editingTxId);
-//     if (idx < 0) { closeModal("#modalTx"); return; }
-//     const oldT = { ...txs[idx] };
-//     const newT = { ...oldT, type: txType, amount, category, note, date, ...(walletId ? { walletId } : { walletId: undefined }) };
-
-//     applyEditWalletAdjustments(oldT, newT);
-//     txs[idx] = newT;
-//   }
-
-//   save(LS_TX, txs);
-//   save(LS_WALLETS, wallets);
-//   renderAll();
-//   closeModal("#modalTx");
-//   $("#tab-home").checked = true;
-//   onTabChange();
-//   updateFabForTab();
-// }
 
 function saveTxFromModal() {
   const amountAbs = Number($("#inAmount").value || 0);
@@ -950,7 +639,6 @@ function saveTxFromModal() {
   onTabChange();
   updateFabForTab?.();
 }
-
 
 function doDeleteTx(txId, silentClose = false) {
   const idx = txs.findIndex((t) => t.id === txId);
@@ -1505,15 +1193,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Tx actions
   $("#btnDoSaveTx")?.addEventListener("click", saveTxFromModal);
   $("#btnDeleteTx")?.addEventListener("click", () => { if (editingTxId) doDeleteTx(editingTxId); });
-  // $("#recentTx")?.addEventListener("click", (e) => {
-  //   const btn = e.target.closest?.(".btn-mini");
-  //   const row = e.target.closest?.(".tx");
-  //   if (!row || !btn) return;
-  //   const id = row.getAttribute("data-txid");
-  //   if (!id) return;
-  //   if (btn.dataset.action === "edit") openTxModalEdit(id);
-  //   if (btn.dataset.action === "del") doDeleteTx(id, true);
-  // });
 
   // Tx actions: klik baris transaksi untuk edit
   $("#recentTx")?.addEventListener("click", (e) => {
@@ -1522,8 +1201,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = row.getAttribute("data-txid");
     if (id) openTxModalEdit(id);
   });
-
-
 
   // History filters
   $("#hfAll")?.addEventListener("click", () => { historyFilter = null; renderRecentTx(); });
