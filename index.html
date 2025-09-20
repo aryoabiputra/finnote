@@ -165,8 +165,7 @@
           <div id="walletList"></div>
           <div class="center" style="margin-top: 12px"></div>
           <div class="hint" style="margin-top: 8px">
-            Klik ikon 🗑 untuk menghapus wallet (transaksi terkait ikut
-            dihapus).
+            Ketuk dompet untuk mengubah detail atau menghapusnya.
           </div>
         </div>
       </section>
@@ -304,13 +303,22 @@
         </select>
       </div>
 
-      <div class="form-row end-row">
+      <!-- <div class="form-row end-row">
         <button data-close="#modalAddWallet" class="btn-secondary">
           Batal
         </button>
-        <!-- GANTI ID TOMBOL -->
         <button id="btnSaveWallet" class="btn-primary">Simpan</button>
+      </div> -->
+      <div class="form-row between-row">
+        <button id="btnDeleteWallet" class="btn-danger" style="display:none">
+          <i class="fa-solid fa-trash-can"></i> Hapus
+        </button>
+        <div class="row-actions">
+          <button data-close="#modalAddWallet" class="btn-secondary">Batal</button>
+          <button id="btnSaveWallet" class="btn-primary">Simpan</button>
+        </div>
       </div>
+
     </div>
   </div>
 

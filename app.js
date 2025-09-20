@@ -39,6 +39,11 @@ const LS_HIDE_DEBT = "fin_hide_debt";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
+// Escape HTML biar aman dipakai di innerHTML
+function esc(s) {
+  const map = { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" };
+  return String(s ?? "").replace(/[&<>"']/g, ch => map[ch]);
+}
 
 const fmtIDR = (n) =>
   new Intl.NumberFormat("id-ID", {
@@ -166,19 +171,24 @@ function renderSummary() {
 }
 
 function walletItemHTML(w) {
-  const full = fmtIDR(w.balance);
-  return `<div class="wallet-item" data-id="${w.id}">
+  const full = fmtIDR(w.balance || 0);
+  return `
+  <div class="wallet-item" data-id="${w.id}" role="button" style="cursor:pointer">
     <div class="wallet-left">
-      <div class="wallet-icon ${themeCls(w.theme)}"><i class="${iconCls(w.icon)}"></i></div>
-      <div class="wallet-meta"><b>${w.name}</b><small>${w.note || ""}</small></div>
+      <div class="wallet-icon grad-${w.theme}">
+        <i class="fa-solid ${w.icon}"></i>
+      </div>
+      <div class="wallet-meta">
+        <b>${esc(w.name)}</b>
+        <small>${esc(w.note || "")}</small>
+      </div>
     </div>
-    <div class="wallet-actions">
-      <span class="pill amount" data-full="${full}">${full}</span>
-      <button class="btn-mini" data-action="edit" data-id="${w.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
-      <button class="btn-del"  data-action="del"  data-id="${w.id}" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+    <div class="pill amount" data-full="${full}">
+      ${hideWallets ? "•••••" : full}
     </div>
   </div>`;
 }
+
 
 function walletItemHomeHTML(w) {
   const full = fmtIDR(w.balance);
@@ -204,22 +214,21 @@ function renderWallets() {
   fillStatsWalletSelect();
 }
 
-/* Hutang = tx.type === 'debt' */
 function renderDebtSummary() {
   const debts = txs.filter(t => t.type === "debt");
 
-  // Grup per (walletId + judul/note) agar "Kopi" di dompet A beda dengan di dompet B
+  // Grup per (walletId + judul) agar "Kopi" di dompet A beda dengan di dompet B.
   const groups = new Map(); // key -> { title, walletId, sum }
   for (const t of debts) {
-    const title = (t.note || "Hutang").trim();
-    const key = `${t.walletId}||${title.toLowerCase()}`;
-    const cur = groups.get(key) || { title, walletId: t.walletId, sum: 0 };
+    const title = (t.note || t.category || "Hutang").trim();
+    const key = `${t.walletId || ""}||${title.toLowerCase()}`;
+    const cur = groups.get(key) || { title, walletId: t.walletId || null, sum: 0 };
     cur.sum += Number(t.amount || 0); // pinjam (+), bayar (−)
     groups.set(key, cur);
   }
 
-  // Sisa per judul (yang masih > 0)
-  const items = [...groups.values()]
+  // Tampilkan hanya yang masih ada sisa (> 0), urutkan terbesar ke kecil
+  const items = Array.from(groups.values())
     .filter(g => g.sum > 0)
     .sort((a, b) => b.sum - a.sum);
 
@@ -228,34 +237,35 @@ function renderDebtSummary() {
   $("#debtTotal").textContent = hideDebt ? "•••••" : fmtIDR(total);
   $("#debtCountPill").textContent = `${debts.length} transaksi`;
 
-  // Render list judul + sisa
+  // Render list judul + sisa per judul
   const box = $("#debtList");
-  if (box) {
-    if (!items.length) {
-      box.innerHTML = `<div class="hint">Semua lunas. Mantap!</div>`;
-    } else {
-      box.innerHTML = items.map(g => {
-        const w = wallets.find(x => x.id === g.walletId);
-        const wname = w ? w.name : "—";
-        return `
-          <div class="wallet-item" style="padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.08)">
-            <div class="wallet-left">
-              <div class="wallet-icon" style="width:28px;height:28px;border-radius:8px;font-size:12px">
-                <i class="fa-solid fa-hand-holding-dollar"></i>
-              </div>
-              <div class="wallet-meta">
-                <b>${g.title}</b>
-                <small>${wname}</small>
-              </div>
+  if (!box) return;
+
+  if (!items.length) {
+    box.innerHTML = `<div class="hint">Semua lunas. Mantap!</div>`;
+  } else {
+    box.innerHTML = items.map(g => {
+      const w = wallets.find(x => x.id === g.walletId);
+      const wname = w ? w.name : "—";
+      return `
+        <div class="wallet-item" style="padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.08)">
+          <div class="wallet-left">
+            <div class="wallet-icon" style="width:28px;height:28px;border-radius:8px;font-size:12px">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
             </div>
-            <div class="pill" style="font-size:12px" data-full="${fmtIDR(g.sum)}">
-              ${hideDebt ? "•••••" : fmtIDR(g.sum)}
+            <div class="wallet-meta">
+              <b>${esc(g.title)}</b>
+              <small>${esc(wname)}</small>
             </div>
-          </div>`;
-      }).join("");
-    }
+          </div>
+          <div class="pill" style="font-size:12px" data-full="${fmtIDR(g.sum)}">
+            ${hideDebt ? "•••••" : fmtIDR(g.sum)}
+          </div>
+        </div>`;
+    }).join("");
   }
 }
+
 
 
 function syncEyeIcons() {
@@ -357,7 +367,6 @@ function renderRecentTx() {
   wrap.innerHTML = sections.join("") || `<div class="hint">Tidak ada transaksi sesuai filter.</div>`;
 }
 
-
 function renderAll() {
   renderName();
   renderSummary();
@@ -383,8 +392,10 @@ function openWalletModalCreate() {
   $("#inWNote").value = "";
   $("#inWBalance").value = "";
   $("#inWTheme").value = "blue|fa-building-columns";
+  $("#btnDeleteWallet")?.style.setProperty("display", "none"); // sembunyikan di mode tambah
   openModal("#modalAddWallet");
 }
+
 function openWalletModalEdit(id) {
   const w = wallets.find((x) => x.id === id);
   if (!w) return;
@@ -395,8 +406,10 @@ function openWalletModalEdit(id) {
   $("#inWNote").value = w.note || "";
   $("#inWBalance").value = Number(w.balance || 0);
   $("#inWTheme").value = `${w.theme}|${w.icon}`;
+  $("#btnDeleteWallet")?.style.setProperty("display", "inline-grid"); // TAMPILKAN di mode edit
   openModal("#modalAddWallet");
 }
+
 function saveWalletFromModal() {
   const name = ($("#inWName").value || "").trim();
   const note = ($("#inWNote").value || "").trim();
@@ -491,21 +504,6 @@ function setTxType(t) {
   const wl = $("#inWallet");
   if (wl) wl.style.display = (t === "debt") ? "none" : "";
 }
-
-// function setTxType(t) {
-//   txType = t;
-//   $("#tagIn").style.outline   = t === "in"   ? "2px solid rgba(34,197,94,.6)"  : "none";
-//   $("#tagOut").style.outline  = t === "out"  ? "2px solid rgba(239,68,68,.6)"  : "none";
-//   $("#tagDebt").style.outline = t === "debt" ? "2px solid rgba(245,158,11,.6)" : "none";
-
-//   // isi opsi kategori sesuai tipe
-//   fillTxCategory();
-
-//   // ⬇️ BARU: sembunyikan/ munculkan pilih dompet
-//   const wl = $("#inWallet");
-//   if (wl) wl.style.display = (t === "debt") ? "none" : "";
-// }
-
 
 $("#debtPlus")?.addEventListener("click", () => {
   debtSign = 1;
@@ -1181,13 +1179,17 @@ document.addEventListener("DOMContentLoaded", () => {
     el?.addEventListener("click", (e) => { if (e.target === e.currentTarget) closeModal(sel); });
   });
 
-  // Wallet actions
-  $("#btnSaveWallet")?.addEventListener("click", saveWalletFromModal);
+  // Wallet actions: klik baris untuk edit
   $("#walletList")?.addEventListener("click", (e) => {
-    const editBtn = e.target.closest?.('[data-action="edit"]');
-    const delBtn = e.target.closest?.('[data-action="del"]');
-    if (editBtn) { const id = editBtn.dataset.id; if (id) openWalletModalEdit(id); return; }
-    if (delBtn) { const id = delBtn.dataset.id; if (id) doDeleteWallet(id); }
+    const row = e.target.closest?.(".wallet-item");
+    if (!row) return;
+    const id = row.getAttribute("data-id");
+    if (id) openWalletModalEdit(id);
+  });
+  $("#btnDeleteWallet")?.addEventListener("click", () => {
+    if (!editingWalletId) return;
+    doDeleteWallet(editingWalletId);
+    closeModal("#modalAddWallet");
   });
 
   // Tx actions
