@@ -118,6 +118,9 @@ let txType = "out", txMode = "create", editingTxId = null;
 let statsWalletId = "all", statsDonutType = "expense";
 let historyFilter = null; // null|'in'|'out'|'debt'
 
+let debtSign = 1; // +1 = Pinjam, -1 = Bayar
+
+
 /* NEW: Bulanan vs Tahunan */
 let statsPeriod = "month"; // 'month' | 'year'
 
@@ -202,12 +205,66 @@ function renderWallets() {
 }
 
 /* Hutang = tx.type === 'debt' */
+// function renderDebtSummary() {
+//   const debts = txs.filter((t) => t.type === "debt");
+//   const total = debts.reduce((a, b) => a + Number(b.amount || 0), 0);
+//   $("#debtTotal").textContent = hideDebt ? "•••••" : fmtIDR(total);
+//   $("#debtCountPill").textContent = `${debts.length} transaksi`;
+// }
+
+/* Hutang = tx.type === 'debt' */
 function renderDebtSummary() {
-  const debts = txs.filter((t) => t.type === "debt");
-  const total = debts.reduce((a, b) => a + Number(b.amount || 0), 0);
+  const debts = txs.filter(t => t.type === "debt");
+
+  // Grup per (walletId + judul/note) agar "Kopi" di dompet A beda dengan di dompet B
+  const groups = new Map(); // key -> { title, walletId, sum }
+  for (const t of debts) {
+    const title = (t.note || "Hutang").trim();
+    const key = `${t.walletId}||${title.toLowerCase()}`;
+    const cur = groups.get(key) || { title, walletId: t.walletId, sum: 0 };
+    cur.sum += Number(t.amount || 0); // pinjam (+), bayar (−)
+    groups.set(key, cur);
+  }
+
+  // Sisa per judul (yang masih > 0)
+  const items = [...groups.values()]
+    .filter(g => g.sum > 0)
+    .sort((a, b) => b.sum - a.sum);
+
+  // Total sisa hutang
+  const total = items.reduce((a, g) => a + g.sum, 0);
   $("#debtTotal").textContent = hideDebt ? "•••••" : fmtIDR(total);
   $("#debtCountPill").textContent = `${debts.length} transaksi`;
+
+  // Render list judul + sisa
+  const box = $("#debtList");
+  if (box) {
+    if (!items.length) {
+      box.innerHTML = `<div class="hint">Semua lunas. Mantap!</div>`;
+    } else {
+      box.innerHTML = items.map(g => {
+        const w = wallets.find(x => x.id === g.walletId);
+        const wname = w ? w.name : "—";
+        return `
+          <div class="wallet-item" style="padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.08)">
+            <div class="wallet-left">
+              <div class="wallet-icon" style="width:28px;height:28px;border-radius:8px;font-size:12px">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+              </div>
+              <div class="wallet-meta">
+                <b>${g.title}</b>
+                <small>${wname}</small>
+              </div>
+            </div>
+            <div class="pill" style="font-size:12px" data-full="${fmtIDR(g.sum)}">
+              ${hideDebt ? "•••••" : fmtIDR(g.sum)}
+            </div>
+          </div>`;
+      }).join("");
+    }
+  }
 }
+
 
 function syncEyeIcons() {
   const t = $("#toggleTotal i");
@@ -296,8 +353,8 @@ function recentTxItemHTML(t) {
     t.type === "debt"
       ? "fa-hand-holding-dollar"
       : t.type === "in"
-      ? "fa-arrow-down"
-      : "fa-arrow-up";
+        ? "fa-arrow-down"
+        : "fa-arrow-up";
   const fullAmount = `${sign}${fmtIDR(t.amount)}`;
 
   return `<div class="tx" data-txid="${t.id}" style="cursor:pointer">
@@ -443,9 +500,9 @@ function renderRecentTx() {
 
   // 1) Filter sesuai pilihan
   let list = [...txs];
-  if (historyFilter === "in")  list = list.filter(t => t.type === "in");
+  if (historyFilter === "in") list = list.filter(t => t.type === "in");
   if (historyFilter === "out") list = list.filter(t => t.type === "out");
-  if (historyFilter === "debt")list = list.filter(t => t.type === "debt");
+  if (historyFilter === "debt") list = list.filter(t => t.type === "debt");
 
   // 2) Map id -> index untuk urutan input (yang terbaru indeksnya lebih besar)
   const idxMap = new Map(txs.map((t, i) => [t.id, i]));
@@ -598,6 +655,56 @@ function setTxType(t) {
   $("#tagDebt").style.outline = t === "debt" ? "2px solid rgba(245,158,11,.6)" : "none";
   fillTxCategory();
 }
+function setTxType(t) {
+  txType = t;
+  $("#tagIn").style.outline = t === "in" ? "2px solid rgba(34,197,94,.6)" : "none";
+  $("#tagOut").style.outline = t === "out" ? "2px solid rgba(239,68,68,.6)" : "none";
+  $("#tagDebt").style.outline = t === "debt" ? "2px solid rgba(245,158,11,.6)" : "none";
+
+  // Tampilkan toggle Pinjam/Bayar khusus hutang
+  const dir = $("#debtDir");
+  if (dir) dir.style.display = (t === "debt") ? "grid" : "none";
+
+  // Ubah placeholder catatan agar jadi "judul hutang"
+  const note = $("#inNoteTx");
+  if (note) note.placeholder = (t === "debt")
+    ? "Judul hutang / keterangan (mis: Kopi)"
+    : "Catatan (opsional)";
+
+  fillTxCategory(); // hutang: di UI kamu memang tanpa kategori
+
+  // ⬇️ BARU: sembunyikan/ munculkan pilih dompet
+  const wl = $("#inWallet");
+  if (wl) wl.style.display = (t === "debt") ? "none" : "";
+}
+
+// function setTxType(t) {
+//   txType = t;
+//   $("#tagIn").style.outline   = t === "in"   ? "2px solid rgba(34,197,94,.6)"  : "none";
+//   $("#tagOut").style.outline  = t === "out"  ? "2px solid rgba(239,68,68,.6)"  : "none";
+//   $("#tagDebt").style.outline = t === "debt" ? "2px solid rgba(245,158,11,.6)" : "none";
+
+//   // isi opsi kategori sesuai tipe
+//   fillTxCategory();
+
+//   // ⬇️ BARU: sembunyikan/ munculkan pilih dompet
+//   const wl = $("#inWallet");
+//   if (wl) wl.style.display = (t === "debt") ? "none" : "";
+// }
+
+
+$("#debtPlus")?.addEventListener("click", () => {
+  debtSign = 1;
+  $("#debtPlus")?.classList.add("active");
+  $("#debtMinus")?.classList.remove("active");
+});
+$("#debtMinus")?.addEventListener("click", () => {
+  debtSign = -1;
+  $("#debtMinus")?.classList.add("active");
+  $("#debtPlus")?.classList.remove("active");
+});
+
+
 function fillTxWallet() {
   const sel = $("#inWallet");
   if (!wallets.length) { sel.innerHTML = `<option value="">(Belum ada wallet)</option>`; return; }
@@ -634,6 +741,40 @@ function openTxModalCreate() {
   $("#btnDeleteTx").style.display = "none";
   openModal("#modalTx");
 }
+// function openTxModalEdit(txId) {
+//   const t = txs.find((x) => x.id === txId);
+//   if (!t) return;
+//   txMode = "edit";
+//   editingTxId = txId;
+//   $("#txModalTitle").textContent = "Edit Transaksi";
+//   setTxType(t.type);
+//   $("#inAmount").value = t.amount;
+//   fillTxWallet();
+//   $("#inWallet").value = t.walletId;
+//   fillTxCategory(t.category);
+//   $("#inNoteTx").value = t.note || "";
+//   $("#inDate").value = t.date;
+//   $("#btnDeleteTx").style.display = "inline-grid";
+//   openModal("#modalTx");
+// }
+
+// function openTxModalEdit(txId) {
+//   const t = txs.find((x) => x.id === txId);
+//   if (!t) return;
+//   txMode = "edit";
+//   editingTxId = txId;
+//   $("#txModalTitle").textContent = "Edit Transaksi";
+//   setTxType(t.type);               // ⬅️ ini yang otomatis sembunyikan dompet jika hutang
+//   $("#inAmount").value = t.amount;
+//   fillTxWallet();
+//   if (t.walletId) $("#inWallet").value = t.walletId; // ⬅️ jangan set jika hutang
+//   fillTxCategory(t.category);
+//   $("#inNoteTx").value = t.note || "";
+//   $("#inDate").value = t.date;
+//   $("#btnDeleteTx").style.display = "inline-grid";
+//   openModal("#modalTx");
+// }
+
 function openTxModalEdit(txId) {
   const t = txs.find((x) => x.id === txId);
   if (!t) return;
@@ -641,15 +782,27 @@ function openTxModalEdit(txId) {
   editingTxId = txId;
   $("#txModalTitle").textContent = "Edit Transaksi";
   setTxType(t.type);
-  $("#inAmount").value = t.amount;
+
+  // Untuk hutang: tampilkan nilai absolut dan set toggle sesuai tanda
+  if (t.type === "debt") {
+    debtSign = t.amount >= 0 ? 1 : -1;
+    $("#debtPlus")?.classList.toggle("active", debtSign === 1);
+    $("#debtMinus")?.classList.toggle("active", debtSign === -1);
+    $("#inAmount").value = Math.abs(Number(t.amount || 0));
+  } else {
+    $("#inAmount").value = t.amount;
+  }
+
   fillTxWallet();
-  $("#inWallet").value = t.walletId;
+  if (t.walletId) $("#inWallet").value = t.walletId; // tidak ada untuk hutang
   fillTxCategory(t.category);
   $("#inNoteTx").value = t.note || "";
   $("#inDate").value = t.date;
   $("#btnDeleteTx").style.display = "inline-grid";
   openModal("#modalTx");
 }
+
+
 function reverseTxEffect(t) {
   if (t.type === "debt") return;
   const w = wallets.find((w) => w.id === t.walletId);
@@ -666,35 +819,139 @@ function applyEditWalletAdjustments(oldT, newT) {
   reverseTxEffect(oldT);
   applyTxEffect(newT);
 }
+// function saveTxFromModal() {
+//   const amount = Number($("#inAmount").value || 0);
+//   const walletId = $("#inWallet").value;
+//   const category = $("#inCategory").value;
+//   const note = $("#inNoteTx").value.trim();
+//   const date = $("#inDate").value || new Date().toISOString().slice(0, 10);
+//   if (!amount || amount <= 0) { alert("Nominal harus > 0"); return; }
+//   if (!walletId) { alert("Pilih dompet"); return; }
+
+//   if (txMode === "create") {
+//     const t = { id: uuid(), type: txType, amount, category, note, walletId, date };
+//     txs.push(t);
+//     applyTxEffect(t);
+//   } else {
+//     const idx = txs.findIndex((x) => x.id === editingTxId);
+//     if (idx < 0) { closeModal("#modalTx"); return; }
+//     const oldT = { ...txs[idx] };
+//     const newT = { ...oldT, type: txType, amount, category, note, walletId, date };
+//     applyEditWalletAdjustments(oldT, newT);
+//     txs[idx] = newT;
+//   }
+//   save(LS_TX, txs);
+//   save(LS_WALLETS, wallets);
+//   renderAll();
+//   closeModal("#modalTx");
+//   $("#tab-home").checked = true;
+//   onTabChange();
+//   updateFabForTab();
+// }
+
+// function saveTxFromModal() {
+//   const amountAbs = Number($("#inAmount").value || 0);
+//   const walletId = $("#inWallet").value;
+//   const category = $("#inCategory").value;
+//   const note = $("#inNoteTx").value.trim();
+//   const date = $("#inDate").value || new Date().toISOString().slice(0, 10);
+//   if (!amountAbs || amountAbs <= 0) { alert("Nominal harus > 0"); return; }
+//   if (!walletId) { alert("Pilih dompet"); return; }
+
+//   // tanda khusus hutang
+//   const amount = (txType === "debt") ? debtSign * amountAbs : amountAbs;
+
+//   if (txMode === "create") {
+//     const t = { id: uuid(), type: txType, amount, category, note, walletId, date };
+//     txs.push(t);
+//     applyTxEffect(t); // catatan: hutang tidak mempengaruhi saldo dompet di app kamu
+//   } else {
+//     const idx = txs.findIndex((x) => x.id === editingTxId);
+//     if (idx < 0) { closeModal("#modalTx"); return; }
+//     const oldT = { ...txs[idx] };
+//     const newT = { ...oldT, type: txType, amount, category, note, walletId, date };
+//     applyEditWalletAdjustments(oldT, newT);
+//     txs[idx] = newT;
+//   }
+//   save(LS_TX, txs);
+//   renderAll();
+//   closeModal("#modalTx");
+// }
+
+// function saveTxFromModal() {
+//   const amount = Number($("#inAmount").value || 0);
+//   const walletId = txType === "debt" ? null : $("#inWallet").value; // ⬅️ dompet opsional utk hutang
+//   const category = $("#inCategory").value;
+//   const note = $("#inNoteTx").value.trim();
+//   const date = $("#inDate").value || new Date().toISOString().slice(0, 10);
+
+//   if (!amount || amount <= 0) { alert("Nominal harus > 0"); return; }
+//   if (txType !== "debt" && !walletId) { alert("Pilih dompet"); return; } // ⬅️ validasi hanya utk in/out
+
+//   if (txMode === "create") {
+//     const t = { id: uuid(), type: txType, amount, category, note, date, ...(walletId ? { walletId } : {}) };
+//     txs.push(t);
+//     applyTxEffect(t); // hutang tetap tidak mengubah saldo (lihat fungsi applyTxEffect)
+//   } else {
+//     const idx = txs.findIndex((x) => x.id === editingTxId);
+//     if (idx < 0) { closeModal("#modalTx"); return; }
+//     const oldT = { ...txs[idx] };
+//     const newT = { ...oldT, type: txType, amount, category, note, date, ...(walletId ? { walletId } : { walletId: undefined }) };
+
+//     applyEditWalletAdjustments(oldT, newT);
+//     txs[idx] = newT;
+//   }
+
+//   save(LS_TX, txs);
+//   save(LS_WALLETS, wallets);
+//   renderAll();
+//   closeModal("#modalTx");
+//   $("#tab-home").checked = true;
+//   onTabChange();
+//   updateFabForTab();
+// }
+
 function saveTxFromModal() {
-  const amount = Number($("#inAmount").value || 0);
-  const walletId = $("#inWallet").value;
+  const amountAbs = Number($("#inAmount").value || 0);
+  const walletIdRaw = $("#inWallet")?.value || "";
   const category = $("#inCategory").value;
   const note = $("#inNoteTx").value.trim();
   const date = $("#inDate").value || new Date().toISOString().slice(0, 10);
-  if (!amount || amount <= 0) { alert("Nominal harus > 0"); return; }
-  if (!walletId) { alert("Pilih dompet"); return; }
+
+  if (!amountAbs || amountAbs <= 0) { alert("Nominal harus > 0"); return; }
+
+  // Hutang tidak pakai dompet; pemasukan/pengeluaran tetap wajib dompet
+  const walletId = (txType === "debt") ? null : walletIdRaw;
+  if (txType !== "debt" && !walletId) { alert("Pilih dompet"); return; }
+
+  // Terapkan tanda khusus hutang
+  const amount = (txType === "debt") ? (debtSign * amountAbs) : amountAbs;
 
   if (txMode === "create") {
     const t = { id: uuid(), type: txType, amount, category, note, walletId, date };
     txs.push(t);
-    applyTxEffect(t);
+    applyTxEffect(t); // aman: applyTxEffect() akan return untuk hutang
   } else {
     const idx = txs.findIndex((x) => x.id === editingTxId);
     if (idx < 0) { closeModal("#modalTx"); return; }
     const oldT = { ...txs[idx] };
     const newT = { ...oldT, type: txType, amount, category, note, walletId, date };
+
+    // sesuaikan saldo dompet hanya untuk in/out
     applyEditWalletAdjustments(oldT, newT);
     txs[idx] = newT;
   }
+
   save(LS_TX, txs);
   save(LS_WALLETS, wallets);
   renderAll();
   closeModal("#modalTx");
   $("#tab-home").checked = true;
   onTabChange();
-  updateFabForTab();
+  updateFabForTab?.();
 }
+
+
 function doDeleteTx(txId, silentClose = false) {
   const idx = txs.findIndex((t) => t.id === txId);
   if (idx < 0) return;
@@ -1259,12 +1516,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // });
 
   // Tx actions: klik baris transaksi untuk edit
-$("#recentTx")?.addEventListener("click", (e) => {
-  const row = e.target.closest?.(".tx");
-  if (!row) return;
-  const id = row.getAttribute("data-txid");
-  if (id) openTxModalEdit(id);
-});
+  $("#recentTx")?.addEventListener("click", (e) => {
+    const row = e.target.closest?.(".tx");
+    if (!row) return;
+    const id = row.getAttribute("data-txid");
+    if (id) openTxModalEdit(id);
+  });
 
 
 

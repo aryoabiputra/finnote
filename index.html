@@ -133,9 +133,7 @@
               </div>
               <div class="pill" id="debtCountPill">0 transaksi</div>
             </div>
-            <div class="hint" style="margin-top: 8px">
-              Jangan lupa bayar hutang hey!
-            </div>
+            <div id="debtList" style="margin-top:10px"></div>
           </div>
 
           <!-- Riwayat -->
@@ -328,6 +326,12 @@
           <span id="tagOut" class="tagtype tag-out" data-type="out">Pengeluaran</span>
           <span id="tagDebt" class="tagtype tag-debt" data-type="debt">Hutang</span>
         </div>
+        <!-- Toggle arah hutang: Pinjam (+) / Bayar (−) -->
+<div class="segmented" id="debtDir" style="display:none">
+  <button id="debtPlus" class="seg active" data-sign="1">Pinjam (+)</button>
+  <button id="debtMinus" class="seg" data-sign="-1">Bayar (−)</button>
+</div>
+
         <input id="inAmount" class="input" type="number" inputmode="numeric" placeholder="Nominal (contoh: 125000)" />
         <select id="inWallet" class="select"></select>
         <select id="inCategory" class="select"></select>
